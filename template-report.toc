@@ -16,17 +16,19 @@
 \contentsline {subsubsection}{Execute (EX)}{4}{}%
 \contentsline {subsubsection}{Access Memory (MEM)}{4}{}%
 \contentsline {subsubsection}{Commit (COM)}{4}{}%
-\contentsline {subsection}{\numberline {2.2.2}Hazards}{4}{}%
-\contentsline {subsection}{\numberline {2.2.3}Multiscalar Execution}{4}{}%
+\contentsline {subsection}{\numberline {2.2.2}Restrictions}{4}{}%
+\contentsline {subsubsection}{Data Hazards}{4}{}%
+\contentsline {subsubsection}{Control Hazards}{5}{}%
+\contentsline {subsection}{\numberline {2.2.3}Multiscalar Execution}{5}{}%
 \contentsline {subsection}{\numberline {2.2.4}Out-of-Order (OoO) Pipeline}{5}{}%
-\contentsline {subsection}{\numberline {2.2.5}Branch Prediction}{5}{}%
-\contentsline {section}{\numberline {2.3}Branch Predictor Implementations}{5}{}%
-\contentsline {subsection}{\numberline {2.3.1}Static Branch Predictors}{5}{}%
+\contentsline {subsection}{\numberline {2.2.5}Branch Prediction}{6}{}%
+\contentsline {section}{\numberline {2.3}Branch Predictor Implementations}{6}{}%
+\contentsline {subsection}{\numberline {2.3.1}Static Branch Predictors}{6}{}%
 \contentsline {subsection}{\numberline {2.3.2}Dynamic Branch Predictors}{6}{}%
-\contentsline {subsubsection}{One-Bit Predictor}{6}{}%
-\contentsline {subsubsection}{Two-Bit Predictor}{6}{}%
-\contentsline {section}{\numberline {2.4}WCET Analysis}{6}{}%
-\contentsline {section}{\numberline {2.5}Timing Anomalies}{6}{}%
+\contentsline {subsubsection}{One-Bit Predictor}{7}{}%
+\contentsline {subsubsection}{Two-Bit Predictor}{7}{}%
+\contentsline {section}{\numberline {2.4}WCET Analysis}{7}{}%
+\contentsline {section}{\numberline {2.5}Timing Anomalies}{7}{}%
 \contentsline {chapter}{\chapternumberline {3}State-of-the-Art}{9}{}%
 \contentsline {subsection}{\numberline {3.0.1}Step Functions}{9}{}%
 \contentsline {subsection}{\numberline {3.0.2}Component Occupation}{9}{}%

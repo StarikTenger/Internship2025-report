@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.5.22)  2 JUN 2025 17:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.5.22)  3 JUN 2025 14:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1087,7 +1087,9 @@ Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
 
 ]
-Underfull \vbox (badness 1509) has occurred while \output is active []
+Overfull \hbox (37.65613pt too wide) in paragraph at lines 7--8
+[][][][][][][] 
+ []
 
 
 
@@ -1100,7 +1102,18 @@ Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
  [4]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 79.
+<figures/pipeline-bubbles.png, id=72, 885.3075pt x 405.515pt>
+File: figures/pipeline-bubbles.png Graphic file (type png)
+<use figures/pipeline-bubbles.png>
+Package pdftex.def Info: figures/pipeline-bubbles.png  used on input line 68.
+(pdftex.def)             Requested size: 452.9679pt x 207.48436pt.
+
+
+
+Overfull \vbox (14.49998pt too high) has occurred while \output is active []
+
+ [5 <./figures/pipeline-bubbles.png>]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 104.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
@@ -1108,8 +1121,8 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 
 Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
- [5]
-Overfull \hbox (5.4294pt too wide) in paragraph at lines 104--105
+ [6]
+Overfull \hbox (5.4294pt too wide) in paragraph at lines 129--130
 \T1/ptm/m/n/12 TAKEN, WEAK-TAKEN, WEAK-NTAKEN and STRONG-NTAKEN. Pic-ture [][][][][][] shows
  []
 
@@ -1118,38 +1131,36 @@ Overfull \hbox (5.4294pt too wide) in paragraph at lines 104--105
 
 Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
- [6]
-<figures/first-TA-ex-input.png, id=76, 450.68375pt x 269.005pt>
+ [7]
+<figures/first-TA-ex-input.png, id=86, 450.68375pt x 269.005pt>
 File: figures/first-TA-ex-input.png Graphic file (type png)
 <use figures/first-TA-ex-input.png>
-Package pdftex.def Info: figures/first-TA-ex-input.png  used on input line 129.
+Package pdftex.def Info: figures/first-TA-ex-input.png  used on input line 154.
 (pdftex.def)             Requested size: 135.89174pt x 81.11258pt.
-<figures/first-TA-ex-trace.png, id=77, 908.39375pt x 410.53375pt>
+<figures/first-TA-ex-trace.png, id=87, 908.39375pt x 410.53375pt>
 File: figures/first-TA-ex-trace.png Graphic file (type png)
 <use figures/first-TA-ex-trace.png>
-Package pdftex.def Info: figures/first-TA-ex-trace.png  used on input line 136.
+Package pdftex.def Info: figures/first-TA-ex-trace.png  used on input line 161.
 (pdftex.def)             Requested size: 249.13371pt x 112.58705pt.
 )
 
 
 Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
- [7 <./figures/first-TA-ex-input.png> <./figures/first-TA-ex-trace.png>]
+ [8 <./figures/first-TA-ex-input.png> <./figures/first-TA-ex-trace.png>]
 \openout2 = `./chapters/3_State-of-the-Art.aux'.
 
- (./chapters/3_State-of-the-Art.tex
-
-[8
-
-
-
-
-])
+ (./chapters/3_State-of-the-Art.tex)
 
 
 Overfull \vbox (14.49998pt too high) has occurred while \output is active []
 
- [9]
+ [9
+
+
+
+
+]
 \openout2 = `./chapters/4_Contribution.aux'.
 
  (./chapters/4_Contribution.tex
@@ -1224,18 +1235,18 @@ L3 programming layer <2020/03/25>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 35099 strings out of 469588
- 846671 string characters out of 5470293
- 1445440 words of memory out of 5000000
- 61301 multiletter control sequences out of 15000+600000
+ 35107 strings out of 469588
+ 846928 string characters out of 5470293
+ 1445585 words of memory out of 5000000
+ 61309 multiletter control sequences out of 15000+600000
  681529 words of font info for 97 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 85i,11n,93p,838b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on template-report.pdf (23 pages, 262149 bytes).
+ 85i,12n,93p,838b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on template-report.pdf (23 pages, 322083 bytes).
 PDF statistics:
- 150 PDF objects out of 1000 (max. 8388607)
- 86 compressed objects within 1 object stream
+ 157 PDF objects out of 1000 (max. 8388607)
+ 89 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 129 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 134 words of extra memory for PDF output out of 10000 (max. 10000000)
 

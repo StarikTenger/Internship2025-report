@@ -2,7 +2,9 @@
 
 \section{Instruction Set architecture}
 
-Instruction Set Architecture (ISA) defines the set of instructions and the registers on which they operate. Normally, the instruction operands are read from the registers and the execution result is stored there. ISA serves as an interface between software and actual hardware microarchitecture which implements the ISA. \TODO{what is ISA-state, instructions-granularity}
+Instruction Set Architecture (ISA) defines the set of instructions and the registers on which they operate. Normally, the instruction operands are read from the registers and the execution result is stored there. ISA serves as an interface between software and actual hardware microarchitecture which implements the ISA. 
+
+\TODO{what is ISA-state, instructions-granularity. ISA-level reigsters, mapping to real regs}
 
 \section{Microarchitecture}
 
@@ -40,10 +42,33 @@ This stage performs access to the global memory through memory hierarchy. If ins
 
 The purpose of the last stage is to write the result of the instruction to PRF. Only after this the result is visible from ISA-state perspective.
 
-\subsection{Hazards}
+\subsection{Restrictions}
 
-\TODO{}
+The structure of the program imposes limitations on execution. Instruction may block each other thus stalling the pipeline. 
 
+\subsubsection{Data Hazards}
+
+There exist three types of register dependencies that may cause pipeline stall.
+
+\textbf{Read-After-Write (RAW)} dependencies, also called as true data dependencies, arise when to perform one operation, the result of the other must be obtained. For example expression $(1 + 2 * 3)$ requires $(2 * 3)$ be calculated first, thus creating \textit{RAW}-dependency between multiplication and addition operations.
+
+\textbf{Write-After-Write (WAW)} dependency happens when two instructions are writing to the same ISA-level register. The two writes must happen is instruction order.
+
+\textbf{Write-after-Read (WAR)} dependency exists when the younger instruction aims at writing a value in the register which is to be read by an older instruction.
+
+RAW-hazards are inevitable in any architecture. WAW and WAR dependencies do not exist in the model we described so far, by must be resolved in out-of-order pipeline.
+
+\subsubsection{Control Hazards}
+
+Fetching next instruction is possible only if the address of it is known. In case of branches, the next instruction address is not known until the branch outcome is calculated in execute stage.
+
+Therefore, the so-called bubbles (which denote the absence of operation) are introduced into the pipeline.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{figures/pipeline-bubbles.png}
+    \caption{Example of control hazard: the pipeline is stalled until branch finished the execution (from \cite{perais_increasing_2016})}
+    \label{fig:bubbles}
+\end{figure}
 
 \subsection{Multiscalar Execution}
 
