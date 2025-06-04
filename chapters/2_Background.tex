@@ -128,6 +128,12 @@ However, more complex patterns diminish the efficiency of one-bit predictor. For
 
 The two-bit predictor uses the same idea of PHT-indexing, but instead of storing just the outcome of previous branch, it has 4-state automaton encoded by 2 bits. The states are STRONG-TAKEN, WEAK-TAKEN, WEAK-NTAKEN and STRONG-NTAKEN. Picture \TODO{} shows the transitions between the states.
 
+\begin{figure}
+    \includegraphics[width=\textwidth]{figures/two-bit-counter.png}
+    \label{fig:two-bit-counter}
+    \caption{Two-bit predictor state machine (from \cite{mahling_reverse_2023})}
+\end{figure}
+
 \TODO{why better than 1-bit}
 
 \TODO{other types. which are used in critical systems?}
