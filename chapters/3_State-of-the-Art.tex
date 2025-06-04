@@ -57,6 +57,17 @@ Hahn and Reineke \cite{hahn_design_2020} intorduce the notion of progress, ... \
 
 \subsection{Event Time Dependency Graph}
 
+Binder et al. \cite{binder_definitions_2022} define TAs using the notion of causality between events in execution trace. In this work, multiscalar OoO pipeline is considered. The processor state is described as a composition of states of each of the resource: \textit{IF, ID, set of RS, set of FU, ROB, COM}. Each component holds the information about instruction it is currently processing, including required registers and remaining clock cycles.
+
+Notion of event is introduced based on qualitative changes in the pipeline associated to instruction progressing through stages. Event from execution trace (denoted as $e \in Events(\alpha$)) is a triple $(i,r,t)$, where $i$ is the instruction to which event is related, $r$ is the associated resource and the action (acquisition or release) and $t$ is a timestamp corresponding to the clock cycle when event occurs.
+
+In the proposed framework events are related to \textit{IF, ID, FU} and \textit{COM} stages.
+
+\textbf{Latency} is defined as a time difference between an acquisition of some resource and a release of it. For each pair of traces corresponding to the same program the sets of events are only different by the timestamps. Thus, for each event in one trace there is a corresponding event in the other one. A \textbf{variation} signs that the latency in one trace differs from latency of corresponding events in the other trace. On the pair of traces $\alpha$ and $\beta$. The variation is considered favorable for $\alpha$ if the latency in $\alpha$ is smaller than in $\beta$.
+
+Variations are chosen as a source of timing anomalies. They may represent different memory behavior (cache hit or miss) for fetch and memory accesss in FU. Other sources of TA such as memory bus contention or branching are not considered by the framework.
+
+\textbf{Event Time Dependency Graph (ETDG)} $G = (\mathcal{N}, \mathcal{A})$ \TODO{}
 
 
 \section{TA-classifications}
