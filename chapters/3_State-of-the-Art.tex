@@ -61,13 +61,52 @@ Binder et al. \cite{binder_definitions_2022} define TAs using the notion of caus
 
 Notion of event is introduced based on qualitative changes in the pipeline associated to instruction progressing through stages. Event from execution trace (denoted as $e \in Events(\alpha$)) is a triple $(i,r,t)$, where $i$ is the instruction to which event is related, $r$ is the associated resource and the action (acquisition or release) and $t$ is a timestamp corresponding to the clock cycle when event occurs.
 
-In the proposed framework events are related to \textit{IF, ID, FU} and \textit{COM} stages.
+In the proposed framework events are related to \textit{IF, ID, FU} and \textit{COM} stages. For each instruction there are 7 types of events: $\IFa$, $\IFr$, $\IDa$, $\IDr$, $\FUa$, $\FUr$ and $COM$. $\uparrow$ signs the acquisition of a resource and $\downarrow$ its release. $COM$ denotes the acquisition of the commit stage, its release is not captured by the framework.
 
-\textbf{Latency} is defined as a time difference between an acquisition of some resource and a release of it. For each pair of traces corresponding to the same program the sets of events are only different by the timestamps. Thus, for each event in one trace there is a corresponding event in the other one. A \textbf{variation} signs that the latency in one trace differs from latency of corresponding events in the other trace. On the pair of traces $\alpha$ and $\beta$. The variation is considered favorable for $\alpha$ if the latency in $\alpha$ is smaller than in $\beta$.
+\textbf{Latency} is defined as a time difference between an acquisition of some resource and a release of it. For each pair of traces corresponding to the same program the sets of events are only different by the timestamps. Thus, for each event in one trace there is a corresponding event in the other one. Formally, it is a fucntion $CospEvent: Events(\alpha) \rightarrow Events(\beta)$.
+
+A \textbf{variation} signs that the latency in one trace differs from latency of corresponding events in the other trace. On the pair of traces $\alpha$ and $\beta$. The variation is considered favorable for $\alpha$ if the latency in $\alpha$ is smaller than in $\beta$.
 
 Variations are chosen as a source of timing anomalies. They may represent different memory behavior (cache hit or miss) for fetch and memory accesss in FU. Other sources of TA such as memory bus contention or branching are not considered by the framework.
 
-\textbf{Event Time Dependency Graph (ETDG)} $G = (\mathcal{N}, \mathcal{A})$ \TODO{}
+\textbf{Event Time Dependency Graph (ETDG)} of trace $\tau$ denoted as $G(\tau) = (\mathcal{N}, \mathcal{A})$ is composed of a set of nodes $\mathcal{N} = Events(\tau)$ and a set of arcs $\mathcal{A} \subseteq \mathcal{N} \times \mathcal{N} \times \mathbb{N}$. 
+
+
+Arc is a triple $(e_1, e_2, w)$ written as $e_1 \xrightarrow{w} e_2$ where $e_1$ is the source event node, $e_2$ -- destination node and $w$ is a lower bound of the delay between the two events. The arc means that at least $w$ clock cycles must pass between $e_1$ and $e_2$. 
+
+Arcs are derived from a set of rules:
+\begin{enumerate}
+    \item \textbf{Order of pipeline stages}
+    
+    $(I, \IFa, t_0) \xrightarrow{lat_{IF}} (I, \IFr, t_1) \xrightarrow{0} (I, \IDa, t_2) \xrightarrow{1} (I, \IDr, t_3) \xrightarrow{0} (I, \FUa, t_4)  \xrightarrow{lat_{FU}} (I, \FUr, t_5)  \xrightarrow{0} (I, COM, t_6)$
+
+    $lat_{IF}$ and $lat_{FU}$ are the latencies of IF and FU stages respectively.
+
+    \item \textbf{Resource use}
+    
+    $lat_{IF} = t_1 - t_0$, $lat_{FU} = t_5 - t_4$
+
+    \item \textbf{Instruction order}
+    
+    In-order part of the pipeline is constrained by instruction order. Thus, for successive instructions $I_1$ and $I_2$:
+
+    $(I_1, RES\uparrow, t) \xrightarrow{0} (I_2, RES\uparrow, t'), RES \in \{IF, ID, COM\}$
+
+
+    \item \textbf{Data dependencies}
+    
+    RAW dependency between $I_1$ and $I_2$ (\TODO{dep notation}) restricts the execution order of the instructions:  $(I_1, \FUr, t) \xrightarrow{0} (I_2, \FUa, t')$.
+    
+    \item \textbf{Resource contention}
+    
+    Also some instruction can be delayed because of limited resources. For instance, FU contention happens when $I_1$ and $I_2$ use the same FU, and it is busy by $I_1$ at the moment when $I_2$ is ready. This creates $(I_1, FUr, t) \xrightarrow{0} (I_2, FUa, t')$. 
+
+    Resource contention can also be caused by reaching the capacity limit of ROB or RS. 
+\end{enumerate}
+
+\textbf{Causality graph} is achieved from ETDG by removing unnecessary edges. For each event we keep only the most relevant constraint. Only arcs of the form $e_1 \xrightarrow{e_2.time - e_1.time} e_2$ are left. Also arcs related to variations are excluded.
+
+\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\beta$ relative to $\alpha$. Let $e_\alpha\downarrow$ and $e_\beta\downarrow$ be the events corresponding to the end of the variation in both traces. If there exist events $e_\alpha'$ and $e_\beta'$, where $e_\alpha = CospEvent(e_\beta)$ and $e_\beta$ there is a path in causality graph of $\beta$ between $e_\beta\downarrow$ and $e_\beta$, s.t. $\Delta(e_\beta\downarrow,e_\beta) > \Delta(e_\alpha\downarrow,e_\alpha)$.
 
 
 \section{TA-classifications}
