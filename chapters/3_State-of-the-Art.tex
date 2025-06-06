@@ -106,7 +106,26 @@ Arcs are derived from a set of rules:
 
 \textbf{Causality graph} is achieved from ETDG by removing unnecessary edges. For each event we keep only the most relevant constraint. Only arcs of the form $e_1 \xrightarrow{e_2.time - e_1.time} e_2$ are left. Also arcs related to variations are excluded.
 
-\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\beta$ relative to $\alpha$. Let $e_\alpha\downarrow$ and $e_\beta\downarrow$ be the events corresponding to the end of the variation in both traces. If there exist events $e_\alpha'$ and $e_\beta'$, where $e_\alpha = CospEvent(e_\beta)$ and $e_\beta$ there is a path in causality graph of $\beta$ between $e_\beta\downarrow$ and $e_\beta$, s.t. $\Delta(e_\beta\downarrow,e_\beta) > \Delta(e_\alpha\downarrow,e_\alpha)$.
+\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\alpha$ relative to $\beta$. Let $e_\alpha\downarrow$ and $e_\beta\downarrow$ be the events corresponding to the end of the variation in both traces. If there exist events $e_\alpha$ and $e_\beta$, where $e_\beta = CospEvent(e_\alpha)$ and there is a path in causality graph of $\alpha$ between $e_\alpha\downarrow$ and $e_\alpha$, s.t. $\Delta(e_\beta\downarrow,e_\beta) < \Delta(e_\alpha\downarrow,e_\alpha)$.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/multiscalar_ta_causality.png}
+    \caption{Causality-based TA detection applied for example \ref{ex:simple-ta}. $e_\alpha\downarrow = (A, \FUr, 4), e_\beta\downarrow = (A, \FUr, 6), e_\alpha = (A, COM, 13), e_\beta = (A, COM, 11)$. Purple arrow denotes latency which has a variation between two traces. Gray arrow shows delay between events which is greater in favorable trace. Causality in  path $\alpha$ is marked by red arrows.}
+    \label{fig:multiscalar-ta-causality}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/ETDG.png}
+    \caption{Complete ETDG for trace $\alpha$ from figure \ref{fig:multiscalar-ta}. \TODO{image source}}
+    \label{fig:ETDG}
+\end{figure}
+
+Figure \ref{fig:multiscalar-ta-causality} shows how the framework captures TA for example \ref{ex:simple-ta}. Figure \ref{fig:ETDG} presents the complete ETDG for trace $\alpha$ with different dependency rules highlighted with different colors. The arcs reflecting causality are depicted in solid lines.
+
+In contrast to other definition, this one measures relative time from the acquisition of the resource instead of global time. This approach allows the separation of different variations and isolates the part of the trace that experiences TA-effect.
 
 
 \section{TA-classifications}
