@@ -1,15 +1,51 @@
 \chapter{Contribution}
 
+Definition of Binder et al. \cite{binder_definitions_2022} is promising, however the branch prediction and the related issues are not taken in account by the framework. Thus we aim to extend the use case of proposed definition.
+
+In our work we try to adjust Binder's definition to the setting of pipeline with branch predictor. We introduce an input format capable of expressing speculative execution. 
+
+\TODO{complete intro when chapter is done}
+
+\section{Methodology}
+
+The implementation provided by Binder is written in TLA$^+$ \cite{lamport_specifying_2003}. The pipeline state is specified in set-theory notation. The model checker step corresponds to a one clock cycle and derives a new HW state from the previous one. This allows to simulate the non-deterministic timing behavior: each time when a variation can happen, multiple next state are generated. TLA$^+$ covers all reachable states ensuring that all possible behaviors are covered.
+
+The pair of trace constitutes a whole model state. TA is expressed as an invariant for the pair of traces, so its is verified in each model checking step.
+
+\TODO{each pair of executions is considered? or all executions are compared agains the one reference?}
+
 \subsection{Input trace format}
 
-\subsection{Adapting definition of Binder et al.}
+The input of the framework is a pair of:
+\begin{enumerate}
+	\item Pipeline parameters: superscalar degree, $FU$ latencies and memory access latencies depending on the cache events (hit or miss). sequence of instructions;
+	\item Instruction sequence: for each instruction its type and registers are specified as well as set of cache behaviors to be explored by the model checker. The type is used to know which $FU$ will be used by the instruction and based on registers data dependencies are retrieved.
+\end{enumerate}
 
-\subsection{Gap problem}
+We can simplify this view by directly expressing the resource, dependencies and possible latencies of instruction.
 
-\subsection{New causality definition}
+give here an example
 
-\subsection{Methodology}
 
-\subsection{Results}
+
+graph by python -> slow...
+
+3 modes of using: manual, random, total
+
+
+\section{Adapting definition of Binder et al.}
+
+
+
+\section{Gap problem}
+
+\section{Formal Requirements for Causality Graph}
+
+\section{New Causality Definition}
+
+\section{Taking BP state into account}
+Put to conclusion?
+
+\section{Results}
 
 put examples of different TA here
