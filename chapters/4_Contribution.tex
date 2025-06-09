@@ -51,11 +51,17 @@ Moreover, the input is specified in lengthy TLA$+$ notation, which prevents fast
 
 \subsection{Our novel framework}
 
-c++
+\subsubsection{Misprediction Region}
+
+The format of the input traces was adapted to handle speculative execution. We decided to use a simplified format as in figure \TODO{} as a baseline. In Binder's framework instruction trace format is straightforward: it specifies all instructions that are fetched, executed and finally committed. In case of speculative execution, some instructions enter the pipeline, but are never committed, being squashed by the resolution of the branch. To tackle this problem we introduce the notion of \textit{misprediction region of branch instruction}.
+
+As an input trace we specify all instructions that can enter the processor pipeline. As we focus only on timing behavior of the program, abstracting from memory and registers state, we also assume that the control flow is known for a given instruction trace. Thus for each branch we may specify the instructions in only one branch in case of correct prediction. However, in case of misprediction, the instructions from the incorrect branch are fetched until the branch is resolved. We call such instructions \textit{mispredicted} and the set of such instructions after the branch a \textit{misprediction region}.
+
+
+
+\subsubsection{Framework implementation}
 
 3 modes of using: manual, random, total
-
-\subsubsection{Supporting Speculative Execution in Input Format}
 
 \section{Adapting definition of Binder et al.}
 
