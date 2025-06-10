@@ -8,6 +8,8 @@ In our work we try to adjust Binder's definition to the setting of pipeline with
 
 \section{Methodology}
 
+To investigate timing anomalies (TAs) arising from branch prediction, it is essential to construct representative examples that capture such behaviors. While the framework proposed by Binder et al.\ is capable of generating examples within their definition, it does not account for branching or speculative execution. Additionally, the original framework suffers from limitations such as an inconvenient input format and suboptimal performance. To address these shortcomings, we have developed a new framework that adapts and extends the concepts of the existing approach, with explicit support for branch prediction and improved usability and efficiency.
+
 \subsection{Existing framework overview}
 
 \subsubsection{Exploration by model checking}
@@ -28,7 +30,7 @@ The input of the framework is a pair of:
 	\item Instruction sequence: for each instruction its type and registers are specified as well as set of cache behaviors to be explored by the model checker. The type is used to know which $FU$ will be used by the instruction and based on registers data dependencies are retrieved.
 \end{enumerate}
 
-We can simplify this view by directly expressing the resource, dependencies and possible latencies of instruction. Figure \ref{fig:input-format} shows the input for instruction trace from example \ref{ex:simple-ta}. First column is instruction label, second is the resource used, thirds is the sep of data dependencies and the last one captures possible execution latencies. In the same fashion we could specify variations of latencies for $IF$ stage, but we skip them for simplicity. This format is sufficient to express a pair of execution traces derived from instruction trace.
+We can simplify this view by directly expressing the resource, dependencies and possible latencies of instruction. Figure \ref{fig:input-format} shows the input for instruction trace from example \ref{ex:simple-ta}. First column is instruction label, second is the resource used, thirds is the set of data dependencies and the last one captures possible execution latencies. In the same fashion we could specify variations of latencies for $IF$ stage, but we skip them for simplicity. This format is sufficient to express a pair of execution traces derived from instruction trace.
 
 \TODO{example of input in TLA}
 
@@ -49,19 +51,90 @@ The significant flaw we noticed was the performance. Firstly, the TLA$^+$ itself
 
 Moreover, the input is specified in lengthy TLA$+$ notation, which prevents fast sketching the examples. Thus it was decided not to write an extension of the existing framework, but to design a new one from scratch.
 
-\subsection{Our novel framework}
+\subsection{Our Novel Framework}
+
+We introduce a novel framework inspired by Binder et al., designed to address the limitations of the original implementation. Our framework features a lightweight input format that natively supports branch behavior and speculative execution, enabling concise and intuitive specification of instruction traces. To overcome the performance bottlenecks of TLA$^+$, we implement our solution in C++, providing significant speedup and enabling real-time feedback for rapid prototyping. Also, the performance enhancement allows to explore the larger state spaces effectively. Our framework facilitates efficient analysis of timing anomalies and supports both manual and automated exploration modes.
 
 \subsubsection{Misprediction Region}
 
 The format of the input traces was adapted to handle speculative execution. We decided to use a simplified format as in figure \TODO{} as a baseline. In Binder's framework instruction trace format is straightforward: it specifies all instructions that are fetched, executed and finally committed. In case of speculative execution, some instructions enter the pipeline, but are never committed, being squashed by the resolution of the branch. To tackle this problem we introduce the notion of \textit{misprediction region of branch instruction}.
 
-As an input trace we specify all instructions that can enter the processor pipeline. As we focus only on timing behavior of the program, abstracting from memory and registers state, we also assume that the control flow is known for a given instruction trace. Thus for each branch we may specify the instructions in only one branch in case of correct prediction. However, in case of misprediction, the instructions from the incorrect branch are fetched until the branch is resolved. We call such instructions \textit{mispredicted} and the set of such instructions after the branch a \textit{misprediction region}.
+As an input trace we specify all instructions that can enter the processor pipeline. As we focus only on timing behavior of the program, abstracting from memory and registers state, we also assume that the control flow is known for a given instruction trace. Thus for each branch we may specify the instructions in only one branch in case of correct prediction. However, in case of misprediction, the instructions from the incorrect branch are fetched until the branch is resolved. We call such instructions \textit{mispredicted} and the set of such instructions after the branch a \textit{misprediction region}. 
 
+In our format we note the mispredicted regions using indentation in a fashion similar to python syntax (\TODO{reference?}). If line is prefixed with whitespace characters, the corresponding instruction is in a mispredicted region of the last instruction with smaller indentation. To highlight variation in branch behavior we put $*$ next to the branch instruction to highlight the correct prediction in one trace and misprediction in another.
 
+Following is the example of our input format. Here, instructions $C$ and $D$ are in mispredicted region of instruction $B$. Figure \ref{fig:mispred-intro} shows the two execution traces we can derive from this instruction trace. Trace $\alpha$  shows an execution with correct prediction ($C$ and $D$ are skipped and do not enter the pipeline) while trace $\beta$ illustrates misprediction behavior: instructions $C$ and $D$ are both fetched, bus squashed from the pipeline at clock cycle 5.
+
+\begin{lstlisting}
+A:	FU1	 	[4]
+B:	FU2		[1]	*
+	C:	FU2	 	[4]
+	D:	FU2	 	[4]
+E:	FU2	 	[4]
+\end{lstlisting}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/mispred-intro.png}
+	\caption{Pair of traces with correct and incorrect predictions. The squashing event is denoted with a red cross.}
+	\label{fig:mispred-intro}
+\end{figure}
+
+\TODO{nested mispred region}
 
 \subsubsection{Framework implementation}
 
-3 modes of using: manual, random, total
+We decided to take C++ (\TODO{reference?}) as an implementation language as it is fast and includes a number of useful data structures in a standard library.
+
+We define a single instruction as follows. It consists of type of FU to be scheduled at (we do not consider resource switch), latency in this FU, set of RAW dependencies. If instruction is a branch, $mispred_region$ is set to a positive value $n$ denoting the next $n$ instructions are in misprediction region of current instruction. If we want to model only the correct prediction, than $mispred_region$ is set to 0; this way branch behaves as an ordinary instruction. $br_pred$ flag specifies if the prediction is correct, which is needed when generating a pair of traces with variation in branch behavior.
+
+\begin{lstlisting}[language=C]
+struct Instr {
+    int 			fu_type = 0;
+    int 			lat_fu = 1;
+    std::set<int> 	data_deps;
+    int 			mispred_region = 0;
+    bool 			br_pred = false;
+};
+\end{lstlisting}
+
+At the core of our framework is the \texttt{PipelineState} structure, which models the state of all pipeline stages. The \texttt{executed} set tracks instructions that have completed execution in the functional units, enabling dependency resolution. The \texttt{branch\_stack} maintains the context for misprediction regions: each time a branch is fetched, it is pushed onto the stack and remains there until resolved. Together with the \texttt{squashed} set, this mechanism ensures correct handling of mispredicted regions. For simplicity, we do not impose capacity limits on the reservation stations (RS) or reorder buffer (ROB). The \texttt{next()} function advances the pipeline state by one clock cycle and returns whether execution has completed. It operates on the instruction sequence, which is accessed via the program counter (\texttt{pc}).
+
+To obtain an execution trace from a given instruction sequence, we initialize an empty pipeline state (with no instructions present) and repeatedly call \texttt{next()} until the final state is reached. This process yields a sequence of pipeline states, which together form an execution trace.
+
+\begin{lstlisting}[language=C]
+struct StageEntry {
+    int idx = -1;
+    int cycles_left = 0;
+};
+
+struct PipelineState {
+    int clock_cycle = 0;
+    int pc = 0;
+    vector<StageEntry> 	stage_IF = 	vector<StageEntry>(SUPERSCALAR);
+    vector<int> 		stage_ID = 	vector<int>(SUPERSCALAR);
+    vector<set<int>> 	stage_RS = 	vector<set<int>>(FU_NUM);
+    vector<StageEntry> 	stage_FU = 	vector<StageEntry>(FU_NUM);
+    vector<int> 		stage_COM = vector<int>(SUPERSCALAR);
+    deque<int> 			ROB = 		deque<int>();
+    set<int> 	executed;
+    set<int> 	squashed;
+    vector<int> branch_stack;
+
+    bool next(const vector<Instr>& prog);
+};
+\end{lstlisting}
+
+To enable efficient exploration of trace pairs that demonstrate timing anomalies (TA) and to support analysis over larger state spaces, not limited to a fixed instruction trace template, the framework provides three operating modes:
+
+\begin{enumerate}
+	\item \textbf{Manual mode}: The user provides an instruction trace in the format given above. The framework then generates the corresponding pair of execution traces. This mode enables rapid construction and analysis of custom scenarios.
+	\item \textbf{Random search}: The framework generates random instruction traces within user-defined constraints and checks the resulting execution traces against a specified property. For example, it can explore all traces of length 5 containing one branch instruction and at most two RAW dependencies. While this method cannot guarantee exhaustive coverage of the state space, it is effective for quickly finding counterexamples in large spaces.
+	\item \textbf{State exploration}: The trace template is specified as a generator function, similar to random search mode. The framework then exhaustively verifies the property on every possible input, ensuring complete state space coverage. This mode is useful for proving properties about the model, but may be inefficient for finding counterexamples in large spaces due to the potential for excessive exploration of uninteresting subspaces.
+\end{enumerate}
+
+
+In summary, our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyze using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
 
 \section{Adapting definition of Binder et al.}
 
