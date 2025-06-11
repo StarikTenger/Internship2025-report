@@ -1,111 +1,123 @@
 \chapter{Background}
 
-\section{Instruction Set architecture}
+\section{Processor architecture}
 
-\TODO{keep the order of terms introduced}
+\subsection{Instruction Set architecture}
 
 Instruction Set Architecture (ISA) defines the set of instructions and the registers on which they operate. From ISA-perspective all instructions are executed atomically, and their result is visible only after am execution is complete. ISA serves as an interface between software and actual hardware microarchitecture which implements the ISA. This abstraction allows software to reason about program behavior independently of the underlying microarchitectural implementation, which may use additional internal registers or buffers and update state at finer (cycle-level) granularity.
 
 
-\section{Processor pipeline}
-
 ISA defines binary format of instructions which are stored in memory and accessed by the processor through cache mechanisms, usually, fixed length instructions are used, while variable-length also exist. Processor is a cycled device that performs fetching instructions from memory and their subsequent execution, we call the microarchitectural state the state of all hardware registers of the processor. Unlike in ISA, states are defined at clock-cycle granularity, so an instruction takes several clock-cycles to finish. Different optimizations, such as pipelining, multiscalar execution, out-of-order execution and branch predictors (speculative execution).
+
+\TODO{rewrite}
 
 \subsection{Processor Pipeline Stages}
 
-Each instruction needs several stages to be executed: first, the instruction is to be loaded from memory, the operands need to be loaded from the registry. After that the instruction is executed during several cycles depending on its type (for example, multiplication is longer than addition). Due to the fact of isolation of those stages, it is possible to execute several instructions simultaneously: when instructions free its stage, next instruction enters it. This optimization, called pipelining, allows to increase the throughput of the processor.
+Early processors executed instructions sequentially, completing one instruction before starting the next. This approach, known as non-pipelined or single-cycle execution, resulted in lower throughput because each instruction had to wait for the previous one to finish all processing steps. Modern processors, in contrast, employ pipelining, which overlaps the execution of multiple instructions by dividing the process into discrete stages. This significantly improves instruction throughput and overall performance by utilizing hardware resources more efficiently.
 
-Several decompositions can exist for modern processors. Here we describe the 5 stages that can found in any processor and some of which may be further decomposed in more sophisticated architectures.
+Although the exact decomposition into stages may vary across architectures, a typical processor pipeline consists of five fundamental stages. More advanced processors may further subdivide these stages to enhance performance.
 
-\subsubsection{Instruction Fetch (IF)}
+We start by describing the fundamental pipeline stages and then introduce some optimizations such as multiscalar pipelines, out-of-order execution and branch prediction.
 
-As it was said before, the program instructions reside in global memory. This means that instructions access needs to be performed through memory hierarchy using program counter (PC) address. Often, a special instruction cache exists for accessing the program. IF stage is also responsible for updating PC to read the new instruction.
+\begin{enumerate}
+    \item \textbf{Instruction Fetch (IF)}: The processor retrieves the next instruction from memory using the program counter (PC). This access typically leverages the instruction cache to reduce latency. The IF stage is also responsible for updating the PC to point to the subsequent instruction.
 
-\subsubsection{Instruction Decode (ID)}
+    \item \textbf{Instruction Decode (ID)}: The fetched instruction, represented in binary format, is decoded to determine its type and the registers it operates on. During this stage, the required operands are read from the register file, and control signals are generated for subsequent pipeline stages. In some cases, operand values may be obtained via bypassing mechanisms before being written back to the register file.
 
-Once the instruction is fetched from memory, it exists in a processor in a packed binary format. This encoding includes the type of instruction as well as the registers it operates with. Decode stage loads the actual values from Physical Registry File (PRF) and propagates them to downstream pipeline stages. Sometimes the value can be obtained through bypass network before it appears in PRF.
+    \item \textbf{Execute (EX)}: The instruction is executed in this stage. Arithmetic and logic operations are performed by dedicated \textit{functional units} (FUs), which are selected based on the decoded instruction type. For memory access or control flow instructions, the effective address or branch target is computed during this stage.
 
-\subsubsection{Execute (EX)}
+    \item \textbf{Memory Access (MEM)}: If the instruction involves a memory operation (load or store), this stage accesses the memory hierarchy to read or write data. Non-memory instructions bypass this stage.
 
-EX stage computes the result of the operation. Several components may be responsible for performing different types of operations (for instance, different components for addition and multiplication). In this case IF stage emits control signals that determine the data path.
+    \item \textbf{Writeback (WB) or Commit (COM)}: The final stage writes the result of the instruction back to the register file, making it visible at the architectural (ISA) level. Only after this stage does the instruction's result become accessible to subsequent instructions.
+\end{enumerate}
 
-In case of memory or jump instruction the address is calculated.
 
-The result of the computation is directly available to the ID stage via bypass network.
+\subsection{Hazards}
 
-\subsubsection{Access Memory (MEM)}
+Although pipelining significantly improves throughput, it is still susceptible to stalls -- situations where instruction progress is temporarily halted for one or more clock cycles. These stalls often result from dependencies and interactions among instructions within the program. 
 
-This stage performs access to the global memory through memory hierarchy. If instruction is not a memory instruction, this stage is skipped.
-
-\subsubsection{Commit (COM)}
-
-The purpose of the last stage is to write the result of the instruction to PRF. Only after this the result is visible from ISA-state perspective.
-
-\subsection{Restrictions}
-
-The structure of the program imposes limitations on execution. Instruction may block each other thus stalling the pipeline. 
+In this section, we provide an overview of these hazards and in later we discuss hardware mechanisms designed to mitigate their impact.
 
 \subsubsection{Data Hazards}
 
-There exist three types of register dependencies that may cause pipeline stall.
+Pipeline stalls can arise due to dependencies between instructions that access the same registers. There are three primary types of register dependencies:
 
-\textbf{Read-After-Write (RAW)} dependencies, also called as true data dependencies, arise when to perform one operation, the result of the other must be obtained. For example expression $(1 + 2 * 3)$ requires $(2 * 3)$ be calculated first, thus creating \textit{RAW}-dependency between multiplication and addition operations.
+\textbf{Read-After-Write (RAW)} dependencies, also known as true data dependencies, occur when an instruction requires a value that is produced by a preceding instruction. For example, in the expression $(1 + 2 * 3)$, the addition depends on the result of the multiplication, creating a RAW dependency between the two operations.
 
-\textbf{Write-After-Write (WAW)} dependency happens when two instructions are writing to the same ISA-level register. The two writes must happen is instruction order.
+\textbf{Write-After-Write (WAW)} dependencies occur when two instructions write to the same register. To preserve program correctness, the writes must occur in program order, ensuring that the final value in the register corresponds to the last write.
 
-\textbf{Write-after-Read (WAR)} dependency exists when the younger instruction aims at writing a value in the register which is to be read by an older instruction.
+\textbf{Write-After-Read (WAR)} dependencies arise when a younger instruction writes to a register that a previous instruction still needs to read. If the write occurs before the read, the earlier instruction may read an incorrect value.
 
-RAW-hazards are inevitable in any architecture. WAW and WAR dependencies do not exist in the model we described so far, by must be resolved in out-of-order pipeline.
+RAW hazards are inherent to all architectures and must be handled to ensure correct execution. WAW and WAR hazards do not occur in simple in-order pipelines but must be addressed in more complex architectures such as out-of-order model, which will will be discussed in more details in the subsequent sections.
 
 \subsubsection{Control Hazards}
 
-Fetching next instruction is possible only if the address of it is known. In case of branches, the next instruction address is not known until the branch outcome is calculated in execute stage.
+Control hazards, also known as branch hazards, occur when the pipeline cannot determine the address of the next instruction to fetch due to the presence of a branch instruction. The outcome of the branch is typically resolved in the execute stage, leaving the pipeline uncertain about which instruction to fetch next.
 
-Therefore, the so-called bubbles (which denote the absence of operation) are introduced into the pipeline.
+To address this uncertainty, the pipeline introduces bubbles -- cycles in which no useful work is performed -- until the branch outcome is known. Figure \ref{fig:bubbles} illustrates a pipeline stall caused by a control hazard following a branch instruction.
 
-\begin{figure}
+\begin{figure}[H]
     \includegraphics[width=\textwidth]{figures/pipeline-bubbles.png}
     \caption{Example of control hazard: the pipeline is stalled until branch finished the execution (from \cite{perais_increasing_2016})}
     \label{fig:bubbles}
 \end{figure}
 
-\subsection{Multiscalar Execution}
+\subsection{Pipeline optimizations against data hazards}
+
+\subsubsection{Bypass network}
+
+In a conventional pipeline, operands for an instruction are read from the register file during the ID stage. Consequently, if instruction $B$ depends on the result of instruction $A$, $B$ must wait until $A$ completes its WB stage before it can proceed, introducing pipeline stalls. A bypass (or forwarding) network mitigates this delay by routing the result directly from the output of the EX or MEM stage to the input of the dependent instruction in the ID or EX stage, thereby reducing or eliminating the stall cycles caused by RAW dependencies. Figure \ref{fig:bypass-network} illustrates the effect of a bypass network on pipeline execution by comparing the 2 executions: without and with bypass network. As it can be observed, waiting for WB causes IF and ID stages to stall (noted with as \textit{if} and \textit{id} in lowercase).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/bypass network.png}
+    \caption{Execution of the same 3 instructions with RAW dependencies (noted with arrow). Comparison of pipeline without and with bypass network.}
+    \label{fig:bypass-network}
+\end{figure}
+
+\subsubsection{Multiscalar Execution}
 
 Instead of fetching instructions one by one, it is possible to fetch several ones in the same time. This also means that other stages are also multiplied to accommodate all fetched instructions. Since neighbor instructions may be independent this can significantly increase the performance. However, duplicating each stage is costly, while it is relatively easy for IF, ID and COM, execution and accessing memory is much harder to duplicate.
 
-\subsection{Out-of-Order (OoO) Pipeline}
+\TODO{picture}
 
-Despite the fact that the instructions are to be processed in program order, many of them are in fact independent. This means that the order of execution can be chosen based on instruction dependencies rather than their order in initial program. Notice that the pipeline is often stalled by the execution of long instructions (\TODO{refer visual example}). The key idea is that while one instruction is being executed on one functional unit (FU), the other, independent of this one can be executed on the other FU. 
+\subsubsection{Out-of-Order (OoO) Pipeline}
+Out-of-Order (OoO) execution enables instructions to be processed based on data dependencies rather than strictly adhering to program order. While the architectural state (as defined by the ISA) must be updated in program order to preserve correctness, many instructions are independent and can be executed as soon as their operands are available. This parallelism improves resource utilization and overall throughput.
 
-In this approach we divide the pipeline into in-order and out-of-order parts. In-order consists of IF, ID and COM stages while out-of-order includes execution and memory accesses. This allows to achieve a consistent ISA-stage due to in-order fetch a commit. 
+To support OoO execution while maintaining a consistent ISA-visible state, the processor pipeline is logically divided into in-order and out-of-order regions. The in-order region typically includes the instruction fetch (IF), decode (ID), and commit (COM) stages, while the out-of-order region encompasses execution and memory access stages. Instructions are fetched and decoded in program order, but may be executed and completed out of order, provided their dependencies are satisfied. Final commitment to the architectural state occurs in order, ensuring correctness.
 
-Different mechanisms exist to synchronize out-of-order execution. Here we introduce reservation stations (RS) and reorder buffer (ROB) - the additional pipeline stages.
+Key hardware structures enable OoO execution:
 
-Reservation station is a queue before the functional unit, each FU is equipped with its own RS. Once the instruction is decoded it is forwarded to FU based on its type, but if FU is busy, the instruction is put instead into the corresponding RS. Subsequently, the FU is taking the instructions both from ID and RS based on the scheduling policy.
+\textbf{Reservation Stations (RS):} Each functional unit (FU) is associated with a reservation station, which buffers instructions waiting for execution. Once an instruction is decoded, it is dispatched to the appropriate RS based on its type. If the FU is busy or operands are not yet available, the instruction waits in the RS. The FU selects ready instructions from its RS for execution according to a scheduling policy.
 
-ROB is a FIFO queue that insures the order in which instructions should be committed. Each time, the instruction enters out-of-order part (RS or FU) it is also appended to the front of ROB. After being executed, the instruction is tagged as ready in the ROB. The COM stage commits only the last instruction (or several if multiscalar) from the ROB if it is ready, thus ensuring commit in program order.
+\textbf{Reorder Buffer (ROB):} The ROB is a FIFO structure that tracks all instructions in flight between decode and commit. When an instruction enters the out-of-order region, it is allocated an entry in the ROB. Upon completion of execution, the instruction is marked as complete in the ROB. The commit stage retires instructions from the ROB in program order, updating the architectural state only when instructions at the head of the ROB have finished execution. This mechanism ensures that the ISA state is updated in the correct order, even though execution may have occurred out of order.
 
-\TODO{Image}
+Figure \ref{fig:ooo-pipeline} shows the diagram of stage interconnections in processor. It represents the two optimizations discussed: multiscalar and OoO execution.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6 \textwidth]{figures/ooo-pipeline.png}
+    \caption{Out-of-Order multiscalar pipeline diagram}
+    \label{fig:ooo-pipeline}
+\end{figure}
 
 \subsection{Branch Prediction}
 
-IF stage is responsible for fetching the next instruction in the program. However, when conditional jump instruction is fetched the next read address is undefined until the outcome of condition is calculated. The straightforward approach is to stall the pipeline, introducing so-called bubbles (no operation).
+Thus far, we have discussed optimizations that address issues arising from data dependencies. Another critical aspect is the control flow of the program. When encountering a control divergence, such as a conditional branch, the processor cannot determine which instruction to fetch next until the branch condition is resolved.
 
-The more advanced approach consists of fetching a new instruction anyway, the address of which is guessed by branch prediction mechanism, discussed further. Such instructions are called speculative and are not committed until branch decision is taken. In case of incorrect prediction speculative instruction are flushed from the pipeline. 
+In the processor pipeline, the Instruction Fetch (IF) stage is responsible for retrieving the next instruction. However, when a conditional jump instruction is encountered, the address of the subsequent instruction remains undefined until the branch outcome is computed. As a result, the pipeline must stall until the branch instruction completes execution.
 
-\section{Branch Predictor Implementations}
+To improve efficiency, modern processors employ branch prediction mechanisms to guess the likely outcome of a branch and speculatively fetch the corresponding instruction. These speculatively executed instructions are not committed to the architectural state until the branch decision is confirmed. If the prediction is incorrect, the speculative instructions are flushed from the pipeline (this is also called squashing), and execution resumes from the correct path.
 
 \subsection{Static Branch Predictors}
 
-Static branch prediction relies on information known at compile time. Some well-known static branch predictors are:
+Static branch prediction utilizes information available at compile time to determine the likely outcome of each branch. Several strategies are commonly employed:
 
-\begin{itemize}
-    \item Always Not Taken
-    \item Always Taken
-    \item Backward Taken, Forward Not Taken
-\end{itemize}
+\textbf{Always Not Taken:} This strategy assumes that branches are never taken, and the processor continues fetching instructions sequentially. It generally yields lower prediction accuracy, particularly in programs with frequent branching.
 
-\TODO{add details}
+\textbf{Always Taken:} Here, the predictor assumes that every branch will be taken. This approach often achieves higher accuracy than the "always not taken" strategy, especially in code with loops, where branches are typically taken except at loop exit.
+
+\textbf{Backward Taken, Forward Not Taken (BTFNT):} This method predicts that backward branches (those targeting a lower address) are taken, while forward branches are not taken. BTFNT is particularly effective for loop constructs, as loop-closing branches are usually backward and taken, whereas forward branches often correspond to loop exits or conditional statements.
 
 \subsection{Dynamic Branch Predictors}
 
@@ -127,69 +139,11 @@ However, more complex patterns diminish the efficiency of one-bit predictor. For
 
 The two-bit predictor uses the same idea of PHT-indexing, but instead of storing just the outcome of previous branch, it has 4-state automaton encoded by 2 bits. The states are STRONG-TAKEN, WEAK-TAKEN, WEAK-NTAKEN and STRONG-NTAKEN. Figure \ref{fig:two-bit-counter} shows the transitions between the states.
 
-\begin{figure}
+\begin{figure}[H]
     \includegraphics[width=\textwidth]{figures/two-bit-counter.png}
-    \label{fig:two-bit-counter}
     \caption{Two-bit predictor state machine (from \cite{mahling_reverse_2023})}
+    \label{fig:two-bit-counter}
 \end{figure}
 
-\TODO{why better than 1-bit}
-
-\TODO{other types. which are used in critical systems?}
-
-
-\section{WCET Analysis}
-
-In critical systems such as planes and cars it is important that the tasks executed on the hardware meet their deadlines. This is ensured by worst execution time (WCET) analysis. It takes the pair of the program and the dedicated hardware and aims at giving an upper-bound on execution time. 
-
-\TODO{stages of WCET-analysis}
-
-\section{Timing Anomalies}
-
-Phase ordering is a major chellange in WCET-analysis. Most of analysis steps require information from each other (\TODO{examples}), so it is not always possible to order them. 
-
-Nevertheless, most architectures are not composable and contain so-called timing anomalies (TA). Intuitively, TA happens when local worst cases do not constitute a global worst case. TA is observed on the pair of execution traces where the initial hardware state differs, and the instruction sequences are identical. Different cache states can be the source of variation in timing behavior due to miss in one trace and hit in another one.
-
-\begin{example}
-Figure \ref{fig:TA1} shows the example of such an anomaly. Here, the assembly sequence consists of 4 instructions ($A,B,C,D$) with data dependencies $A \rightarrow B$ and $C \rightarrow D$. Figure \ref{fig:TA1-trace} represents the pair of traces ($\alpha, \beta$) derived from execution of the given program. There is a variation in latency of instruction $A$ ($1$ in $\alpha$ and $2$ in $\beta$). In trace $\alpha$  the variation is favorable, but the total execution time is also higher in this trace which signals an anomaly.
-
-\label{ex:simple-ta}
-\end{example}
-
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[t]{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/first-TA-ex-input.png}
-        \caption{Inpus assembly sequence}
-        \label{fig:TA1-code}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.55\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/first-TA-ex-trace.png}
-        \caption{Scheduling on functional units comparison}
-        \label{fig:TA1-trace}
-    \end{subfigure}
-    \caption{TA caused by variation in latency of instruction \textit{A} (from \cite{binder_definitions_2022})}
-    \label{fig:TA1}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/multiscalar_ta.png}
-    \caption{Execution traces from example \ref{ex:simple-ta}}
-    \label{fig:multiscalar-ta}
-\end{figure}
-
-
-\TODO{amplification and counter-intuitive TAs}
-
-\TODO{what is trace, what is variation}
-
-\TODO{vertical diagram}
-
-\TODO{diagonal diagram}
-
-\TODO{execution trace vs instruction trace distinction}
+The two-bit predictor outperforms the one-bit predictor because it requires two consecutive mispredictions before changing its prediction direction. This makes it more resilient to occasional anomalies, where a one-bit predictor would immediately flip its prediction after a single misprediction. As a result, the two-bit predictor achieves higher accuracy, especially in scenarios with repetitive branch behavior.
 

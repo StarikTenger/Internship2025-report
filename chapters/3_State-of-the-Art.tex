@@ -31,7 +31,7 @@ Figure \ref{fig:step-good} shows this definition applied to example \ref{ex:simp
 
 In his thesis \cite{binder_definitions_2022}, Binder provides a counterexample (figure \ref{fig:step-bad}), where it is clear that there is no TA (trace $\beta$ has both unfavorable variation and longer execution time). However, the Gebhard's definition signals an anomaly because of shorter local execution time of instruction $C$ in trace $\beta$.
 
-This poses a question whether it is reasonable to capture a local execution time as difference between instruction complitions. 
+This poses a question whether it is reasonable to capture a local execution time as difference between instruction completion times. 
 
 \subsection{Step-functions Intersections}
 
@@ -44,11 +44,13 @@ Similar definition is proposed by Cassez et al. \cite{cassez_what_2012}. The dif
     \label{fig:step-2}
 \end{figure}
 
-This definition also leads to misleading effect where scenario \cite{binder_definitions_2022} where it is clear that no time anomaly is present, but it is still detected by the definition. Figure \ref{fig:step-2} illustrates this contradiction. \TODO{details}
+This definition also leads to misleading effect with scenario found by Binder \cite{binder_definitions_2022}. Figure \ref{fig:step-2} iluustrates this by comparing two traces. Step-functions of traces $\alpha$ and $\beta$ intersect, however there is no counter-intuitive TA happening as $\alpha$ is both longer and hasa  longer latency for IF stage of instructions $C$ and $D$.
 
 \subsection{Component Occupation}
 
 An alternative approach is proposed by Kirner et al. \cite{kirner_precise_2009}. In their work the idea is to partition hardware into components and for each define the occupation by instruction (for how many cycles it processes the instruction). TA arises when a shorter component occupation coincides with a longer execution time in a chosen trace. However, as is shown is \cite{binder_definitions_2022} the results depend on how we define component partition which imposes the major concern against using this definition.
+
+\TODO{counterexample}
 
 \subsection{Instruction Locality}
 \subsection{Progress-based definition}
