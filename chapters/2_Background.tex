@@ -77,7 +77,7 @@ In a conventional pipeline, operands for an instruction are read from the regist
 
 \subsubsection{Multiscalar Execution}
 
-Instead of fetching instructions one by one, it is possible to fetch several ones in the same time. This also means that other stages are also multiplied to accommodate all fetched instructions. Since neighbor instructions may be independent this can significantly increase the performance. However, duplicating each stage is costly, while it is relatively easy for IF, ID and COM, execution and accessing memory is much harder to duplicate.
+Instead of fetching instructions one by one, it is possible to fetch several ones in the same time. This also means that other stages are also duplicated to accommodate all fetched instructions. Since neighbor instructions may be independent this can significantly increase the performance. However, duplicating each stage is costly, while it is relatively easy for IF, ID and COM, execution and accessing memory is much harder to duplicate.
 
 \TODO{picture}
 

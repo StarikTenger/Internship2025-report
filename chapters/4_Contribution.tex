@@ -61,17 +61,43 @@ The format of the input traces was adapted to handle speculative execution. We d
 
 As an input trace we specify all instructions that can enter the processor pipeline. As we focus only on timing behavior of the program, abstracting from memory and registers state, we also assume that the control flow is known for a given instruction trace. Thus for each branch we may specify the instructions in only one branch in case of correct prediction. However, in case of misprediction, the instructions from the incorrect branch are fetched until the branch is resolved. We call such instructions \textit{mispredicted} and the set of such instructions after the branch a \textit{misprediction region}. 
 
-In our format we note the mispredicted regions using indentation in a fashion similar to python syntax (\TODO{reference?}). If line is prefixed with whitespace characters, the corresponding instruction is in a mispredicted region of the last instruction with smaller indentation. To highlight variation in branch behavior we put $*$ next to the branch instruction to highlight the correct prediction in one trace and misprediction in another.
+In our input format, each line describes a single instruction, beginning with the functional unit to be used (\texttt{FU1}, \texttt{FU2}, etc.). This may be followed by an optional label, prefixed with \texttt{\#}. Data dependencies can be specified by listing the labels of dependent instructions, each prefixed with \texttt{@}. Next, the possible execution latencies are provided as a list. For branch instructions, an optional \texttt{*} denotes variation in branch prediction behavior. Misprediction regions are indicated by indentation: an indented instruction belongs to the misprediction region of the most recent less-indented branch instruction. 
 
-Following is the example of our input format. Here, instructions $C$ and $D$ are in mispredicted region of instruction $B$. Figure \ref{fig:mispred-intro} shows the two execution traces we can derive from this instruction trace. Trace $\alpha$  shows an execution with correct prediction ($C$ and $D$ are skipped and do not enter the pipeline) while trace $\beta$ illustrates misprediction behavior: instructions $C$ and $D$ are both fetched, bus squashed from the pipeline at clock cycle 5.
+Figures \ref{fig:spec-input-ugly} and \ref{fig:spec-input-pretty} present an example of the input format. Figure \ref{fig:spec-input-ugly} displays the raw input as understood by the framework, while Figure \ref{fig:spec-input-pretty} provides a more readable, tabular representation that will be used throughout the remainder of this article. In this example, instructions $C$ and $D$ reside within the misprediction region of instruction $B$. Figure \ref{fig:mispred-intro} illustrates the two possible execution traces derived from this instruction trace: trace $\alpha$ corresponds to correct branch prediction, where $C$ and $D$ are skipped and never enter the pipeline; trace $\beta$ demonstrates the misprediction scenario, in which $C$ and $D$ are fetched but subsequently squashed from the pipeline at clock cycle 5.
 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
 \begin{lstlisting}
-A:	FU1	 	[4]
-B:	FU2		[1]	*
-	C:	FU2	 	[4]
-	D:	FU2	 	[4]
-E:	FU2	 	[4]
+FU1	 #1	[1|4]
+FU2	 @1	[1] *
+    FU2 [4]
+    FU2 [4]
+FU2		[4]
 \end{lstlisting}
+        \caption{Input format understandable for framework}
+        \label{fig:spec-input-ugly}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+\begin{tabular}{rr|ccc}
+ &  & Res & Dep. & Lat. \\ \hline
+\textit{A:} &  & FU1 &  & $[1|4]$ \\
+\textit{*B:} &  & FU2 & $\{A\}$ & $[1]$ \\
+& \textit{C:} & FU2 &  & $[4]$ \\
+& \textit{D:} & FU2 &  & $[4]$ \\
+\textit{E:} &  & FU2 &  & $[4]$ \\
+\end{tabular}
+        \caption{Input format used further in the text}
+        \label{fig:spec-input-pretty}
+    \end{subfigure}
+    \caption{Two equivalent representations of input format supporting speculative execution}
+    \label{fig:TA1}
+\end{figure}
+
+
 
 \begin{figure}[H]
 	\centering
@@ -136,15 +162,47 @@ To enable efficient exploration of trace pairs that demonstrate timing anomalies
 
 In summary, our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyze using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
 
-\section{Adapting definition of Binder et al.}
+\section{Adapting the Definition of Binder et al.}
+
+To adapt the definition given by Binder et al. we should start with identifying the source of timing anomaly in case of branch predictor. In Binder's work the source was the variation was the latency, 
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{rr|ccc}
+    &  & Res & Dep. & Lat. \\ \hline
+    \textit{A:} &  & FU1 &  & $[4]$ \\
+    \textit{B:} &  & FU2 & $\{A\}$ & $[4]$ \\
+    \textit{*C:} &  & FU2 &  & $[1]$ \\
+    & \textit{D:} & FU1 &  & $[4]$ \\
+    & \textit{E:} & FU1 &  & $[4]$ \\
+    \textit{F:} &  & FU2 &  & $[4]$ \\
+    \end{tabular}
+    \caption{}
+    \label{Input trace that produces branch-related TA}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/simple-branch-ta.png}
+    \caption{Execution trace with correct prediction is longer than the one with incorrect}
+    \label{fig:simple-ta-trace}
+\end{figure}
+
+
+
+
+
 
 
 
 \section{Gap problem}
 
-\section{Formal Requirements for Causality Graph}
+\subsection{Problem statement}
 
-\section{New Causality Definition}
+\subsection{Formal Requirements for Causality Graph}
+
+\subsection{New Causality Definition}
 
 \section{Taking BP state into account}
 Put to conclusion?

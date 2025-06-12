@@ -1,12 +1,14 @@
-\chapter{State-of-the-Art}
+\chapter{Timing Analysis and Anomalies}
 
 \section{Evolution of TA-definitions}
 
-Several attempts were made to formally define the timing anomaly. Here we give a review of some definitions which can be applied to our architecture model.
+A timing anomaly (TA) is a situation where a local favorable condition leads to a globally worse state (for example, a cache hit leading to slowdown of the program).  The notion of timing anomalies dates back to 1999 when they were first introduced by Lundqvist and Stenstr\"om \cite{lundqvist_timing_1999} in context of timing analysis. Basically, TA is a feature of an architecture which makes it hard to analyze timing behavior properly. Such anomalies may have a tremendous impact on execution time which is not captured by the WET analysis. Especially dangerous is so-called domino effect, also discovered by Lundqvist and Stenstr\"om. It leads to an unbounded slowdown effect of the TA.
+
+Despite the fact that timing anomalies have been known for a long time, the exact TA definition is a subject to debates. Since 1999 several attempts were made to formalize the notion of TA, some of them being more focused on the exact microarchitecture (like \cite{gruin_minotaur_2023}) and some being more abstract and general (like \cite{binder_definitions_2022}, \cite{hahn_design_2020}). In this section we are giving an overview of existing definitions comparing their strengths and weaknesses.
 
 \subsection{Step Heights}
 
-Gebhard \cite{gebhard_timing_2012} gives a timing-anomaly definition based on local execution time of instruction in comparison to global execution time defined as sum of local ones. TA exists when local execution time of earlier instruction is lower and the global execution time of some later instruction is higher (compared to other trace).
+Gebhard \cite{gebhard_timing_2012} gives a timing-anomaly definition based on local execution time of instructions in comparison to global execution time defined as sum of local ones. A TA exists when local execution time of earlier instruction is lower and the global execution time of some later instruction is higher (compared to other trace).
 
 Figure \ref{fig:step-good} shows this definition applied to example \ref{ex:simple-ta}. Orange arrow illustrates the local execution time of instruction $A$. The global time for instruction $D$ is different between traces $\alpha$ and $\beta$ (13 and 11 respectively).
 
@@ -29,7 +31,7 @@ Figure \ref{fig:step-good} shows this definition applied to example \ref{ex:simp
     \label{fig:step}
 \end{figure}
 
-In his thesis \cite{binder_definitions_2022}, Binder provides a counterexample (figure \ref{fig:step-bad}), where it is clear that there is no TA (trace $\beta$ has both unfavorable variation and longer execution time). However, the Gebhard's definition signals an anomaly because of shorter local execution time of instruction $C$ in trace $\beta$.
+In his thesis \cite{binder_definitions_2022}, Binder provides a counterexample (figure \ref{fig:step-bad}), where it is clear that there is no TA (trace $\beta$ has both unfavorable variation and longer execution time). However, Gebhard's definition signals an anomaly because of shorter local execution time of instruction $C$ in trace $\beta$.
 
 This poses a question whether it is reasonable to capture a local execution time as difference between instruction completion times. 
 
@@ -44,7 +46,7 @@ Similar definition is proposed by Cassez et al. \cite{cassez_what_2012}. The dif
     \label{fig:step-2}
 \end{figure}
 
-This definition also leads to misleading effect with scenario found by Binder \cite{binder_definitions_2022}. Figure \ref{fig:step-2} iluustrates this by comparing two traces. Step-functions of traces $\alpha$ and $\beta$ intersect, however there is no counter-intuitive TA happening as $\alpha$ is both longer and hasa  longer latency for IF stage of instructions $C$ and $D$.
+This definition also leads to misleading effect with scenario found by Binder \cite{binder_definitions_2022}. Figure \ref{fig:step-2} illustrates this by comparing two traces. Step-functions of traces $\alpha$ and $\beta$ intersect, however there is no counter-intuitive TA happening as $\alpha$ is both longer and has a  longer latency for IF stage of instructions $C$ and $D$.
 
 \subsection{Component Occupation}
 
@@ -55,7 +57,7 @@ An alternative approach is proposed by Kirner et al. \cite{kirner_precise_2009}.
 \subsection{Instruction Locality}
 \subsection{Progress-based definition}
 
-Hahn and Reineke \cite{hahn_design_2020} intorduce the notion of progress, ... \cite{gruin_minotaur_2023}
+Hahn and Reineke \cite{hahn_design_2020} introduce the notion of progress, ... \cite{gruin_minotaur_2023}
 
 \subsection{Event Time Dependency Graph}
 
@@ -63,13 +65,14 @@ Binder et al. \cite{binder_definitions_2022} define TAs using the notion of caus
 
 Notion of event is introduced based on qualitative changes in the pipeline associated to instruction progressing through stages. Event from execution trace (denoted as $e \in Events(\alpha$)) is a triple $(i,r,t)$, where $i$ is the instruction to which event is related, $r$ is the associated resource and the action (acquisition or release) and $t$ is a timestamp corresponding to the clock cycle when event occurs.
 
-In the proposed framework events are related to \textit{IF, ID, FU} and \textit{COM} stages. For each instruction there are 7 types of events: $\IFa$, $\IFr$, $\IDa$, $\IDr$, $\FUa$, $\FUr$ and $COM$. $\uparrow$ signs the acquisition of a resource and $\downarrow$ its release. $COM$ denotes the acquisition of the commit stage, its release is not captured by the framework.
+In the proposed framework events are related to \textit{IF, ID, FU} and \textit{COM} stages. For each instruction there are 7 types of events: $\IFa$, $\IFr$, $\IDa$, $\IDr$, $\FUa$, $\FUr$ and $COM$. $\uparrow$ signs the acquisition of a resource and $\downarrow$ its release. $COM$ denotes the acquisition of the commit stage; hence its release always happens one clock cycle after and no subsequent stages exist, it is not included into framework.
 
-\textbf{Latency} is defined as a time difference between an acquisition of some resource and a release of it. For each pair of traces corresponding to the same program the sets of events are only different by the timestamps. Thus, for each event in one trace there is a corresponding event in the other one. Formally, it is a fucntion $CospEvent: Events(\alpha) \rightarrow Events(\beta)$.
+\textbf{Latency} is defined as the time difference between the acquisition and release of a resource. Each instruction passes through the same pipeline stages and is associated with corresponding events. Therefore, for each pair of traces corresponding to the same program, the sets of events differ only in their timestamps or, potentially, in the functional unit (FU) used (although resource switching is not modeled within this framework). Consequently, for each event in one trace, there exists a corresponding event in the other. Formally, this correspondence is defined by the function $CospEvent: Events(\alpha) \rightarrow Events(\beta)$.
+
 
 A \textbf{variation} signs that the latency in one trace differs from latency of corresponding events in the other trace. On the pair of traces $\alpha$ and $\beta$. The variation is considered favorable for $\alpha$ if the latency in $\alpha$ is smaller than in $\beta$.
 
-Variations are chosen as a source of timing anomalies. They may represent different memory behavior (cache hit or miss) for fetch and memory accesss in FU. Other sources of TA such as memory bus contention or branching are not considered by the framework.
+Variations are chosen as a source of timing anomalies. They may represent different memory behavior (cache hit or miss) for fetch and memory accesses in FU. Other sources of TA such as memory bus contention or branching are not considered by the framework.
 
 \textbf{Event Time Dependency Graph (ETDG)} of trace $\tau$ denoted as $G(\tau) = (\mathcal{N}, \mathcal{A})$ is composed of a set of nodes $\mathcal{N} = Events(\tau)$ and a set of arcs $\mathcal{A} \subseteq \mathcal{N} \times \mathcal{N} \times \mathbb{N}$. 
 
@@ -101,7 +104,7 @@ Arcs are derived from a set of rules:
     
     \item \textbf{Resource contention}
     
-    Also some instruction can be delayed because of limited resources. For instance, FU contention happens when $I_1$ and $I_2$ use the same FU, and it is busy by $I_1$ at the moment when $I_2$ is ready. This creates $(I_1, FUr, t) \xrightarrow{0} (I_2, FUa, t')$. 
+    Also some instruction can be delayed because of limited resources. For instance, FU contention happens when $I_1$ and $I_2$ use the same FU, and it is busy by $I_1$ at the moment when $I_2$ is ready. This creates $(I_1, \FUr, t) \xrightarrow{0} (I_2, \FUa, t')$. 
 
     Resource contention can also be caused by reaching the capacity limit of ROB or RS. 
 \end{enumerate}
@@ -114,7 +117,7 @@ Arcs are derived from a set of rules:
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/multiscalar_ta_causality.png}
-    \caption{Causality-based TA detection applied for example \ref{ex:simple-ta}. $e_\alpha\downarrow = (A, \FUr, 4), e_\beta\downarrow = (A, \FUr, 6), e_\alpha = (A, COM, 13), e_\beta = (A, COM, 11)$. Purple arrow denotes latency which has a variation between two traces. Gray arrow shows delay between events which is greater in favorable trace. Causality in  path $\alpha$ is marked by red arrows.}
+    \caption{Causality-based TA detection applied to Example \ref{ex:simple-ta}. $e_\alpha\downarrow = (A, \FUr, 4), e_\beta\downarrow = (A, \FUr, 6), e_\alpha = (A, COM, 13), e_\beta = (A, COM, 11)$. Purple arrow denotes latency which has a variation between two traces. Gray arrow shows delay between events which is greater in favorable trace. Causality in  path $\alpha$ is marked by red arrows.}
     \label{fig:multiscalar-ta-causality}
 \end{figure}
 
