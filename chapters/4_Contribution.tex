@@ -7,12 +7,17 @@ In our work we try to adjust Binder's definition to the setting of pipeline with
 \TODO{complete intro when chapter is done}
 
 \section{Methodology}
+To systematically investigate timing anomalies induced by branch predictors, it is essential to efficiently generate and analyze relevant examples. Manual construction of such examples is both time-consuming and error-prone, motivating the need for a tool that can automatically or semi-automatically produce and validate them. With such a tool, we can iteratively generate candidate scenarios, analyze their behavior, and assess the applicability of Binder et al.'s definition to these new cases. This process enables us to refine and adapt the definition as necessary, guided by empirical evidence from the generated examples.
 
-To investigate timing anomalies (TAs) arising from branch prediction, it is essential to construct representative examples that capture such behaviors. While the framework proposed by Binder et al.\ is capable of generating examples within their definition, it does not account for branching or speculative execution. Additionally, the original framework suffers from limitations such as an inconvenient input format and suboptimal performance. To address these shortcomings, we have developed a new framework that adapts and extends the concepts of the existing approach, with explicit support for branch prediction and improved usability and efficiency.
+Our initial efforts focused on studying and extending the TLA$^+$ \cite{lamport_specifying_2003} framework developed by Binder et al.  to support branch behavior. However, we encountered significant performance limitations and found the input format insufficiently flexible for rapid prototyping and adjustment of examples.
 
-\subsection{Existing framework overview}
+Consequently, we reimplemented the framework in C++, drawing on insights from the TLA$^+$ model. We also use TLA$^+$ as a reference to check the correctness. The new implementation offers substantial performance improvements and introduces randomized search capabilities, enabling efficient exploration of the space of possible instruction traces and facilitating the discovery of timing anomalies related to branch prediction.
 
-\subsubsection{Exploration by model checking}
+\section{Framework}
+
+\subsection{Existing Framework Overview}
+
+\subsubsection{Exploration by Model Checking}
 
 The implementation provided by Binder is written in TLA$^+$ \cite{lamport_specifying_2003}. The pipeline state is specified in set-theory notation. The model checker step corresponds to a one clock cycle and derives a new HW state from the previous one. This allows to simulate the non-deterministic timing behavior: each time when a variation can happen, multiple next state are generated. TLA$^+$ covers all reachable states ensuring that all possible behaviors are covered.
 
@@ -20,9 +25,9 @@ The pair of trace constitutes a whole model state. TA is expressed as an invaria
 
 As well as a construction of traces, the framework provides visualization methods for the traces and ETDG.
 
-\TODO{each pair of executions is considered? or all executions are compared against the one reference?}
+% \TODO{each pair of executions is considered? or all executions are compared against the one reference?}
 
-\subsubsection{Input trace format}
+\subsubsection{Input Trace Format}
 
 The input of the framework is a pair of:
 \begin{enumerate}
@@ -30,13 +35,34 @@ The input of the framework is a pair of:
 	\item Instruction sequence: for each instruction its type and registers are specified as well as set of cache behaviors to be explored by the model checker. The type is used to know which $FU$ will be used by the instruction and based on registers data dependencies are retrieved.
 \end{enumerate}
 
-We can simplify this view by directly expressing the resource, dependencies and possible latencies of instruction. Figure \ref{fig:input-format} shows the input for instruction trace from example \ref{ex:simple-ta}. First column is instruction label, second is the resource used, thirds is the set of data dependencies and the last one captures possible execution latencies. In the same fashion we could specify variations of latencies for $IF$ stage, but we skip them for simplicity. This format is sufficient to express a pair of execution traces derived from instruction trace.
+Figure \ref{fig:TLA-format} illustrates the instruction sequence that causes TA in Example \ref{ex:simple-ta}. We can simplify this view by directly expressing the resource, dependencies and possible latencies of instruction. Figure \ref{fig:input-format} shows the input for instruction trace from example \ref{ex:simple-ta}. First column is instruction label, second is the resource used, thirds is the set of data dependencies and the last one captures possible execution latencies. In the same fashion we could specify variations of latencies for $IF$ stage, but we skip them for simplicity. This table is sufficient to express a pair of execution traces derived from instruction trace.
 
-\TODO{example of input in TLA}
+\begin{figure}[H]
+\begin{lstlisting}[basicstyle=\fontsize{8}{13}\selectfont\ttfamily]
+missLat == 3
+mayDMiss == {1}
+program == <<
+[ ind |-> 1, type |-> "MemRead",  r0 |-> "ra", r1 |-> "",   r2 |-> "", addr |-> "0x1" ],
+[ ind |-> 2, type |-> "IntAlu",   r0 |-> "",   r1 |-> "ra", r2 |-> "", addr |-> "0x2" ],
+[ ind |-> 3, type |-> "IntAlu",   r0 |-> "rb", r1 |-> "",   r2 |-> "", addr |-> "0x3" ],
+[ ind |-> 4, type |-> "MemWrite", r0 |-> "",   r1 |-> "rb", r2 |-> "", addr |-> "0x4" ]
+>>
+\end{lstlisting}
+\caption{TLA$^+$ input format for Binder's framework. Some lines are excluded for brevity}
+\label{fig:TLA-format}
+\end{figure}
+
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.3\textwidth]{figures/input_ex.png}
+	\begin{tabular}{r|ccc}
+    & Resource & Dependencies & Latencies \\ \hline
+    \textit{A:} & FU1 &  & $1 | 3$ \\
+    \textit{B:} & FU2 & $\{A\}$ & $3$ \\
+    \textit{C:} & FU2 &  & $3$ \\
+    \textit{D:} & FU1 & $\{C\}$ & $3$ \\
+    \end{tabular}
+
 	\caption{Simplified input format of example from figure \ref{fig:TA1-code}}
 	\label{fig:input-format}
 \end{figure}
@@ -57,7 +83,7 @@ We introduce a novel framework inspired by Binder et al., designed to address th
 
 \subsubsection{Misprediction Region}
 
-The format of the input traces was adapted to handle speculative execution. We decided to use a simplified format as in figure \TODO{} as a baseline. In Binder's framework instruction trace format is straightforward: it specifies all instructions that are fetched, executed and finally committed. In case of speculative execution, some instructions enter the pipeline, but are never committed, being squashed by the resolution of the branch. To tackle this problem we introduce the notion of \textit{misprediction region of branch instruction}.
+The format of the input traces was adapted to handle speculative execution. We decided to use a simplified format as in figure \ref{fig:input-format} as a baseline. In Binder's framework instruction trace format is straightforward: it specifies all instructions that are fetched, executed and finally committed. In case of speculative execution, some instructions enter the pipeline, but are never committed, being squashed by the resolution of the branch. To tackle this problem we introduce the notion of \textit{misprediction region of branch instruction}.
 
 As an input trace we specify all instructions that can enter the processor pipeline. As we focus only on timing behavior of the program, abstracting from memory and registers state, we also assume that the control flow is known for a given instruction trace. Thus for each branch we may specify the instructions in only one branch in case of correct prediction. However, in case of misprediction, the instructions from the incorrect branch are fetched until the branch is resolved. We call such instructions \textit{mispredicted} and the set of such instructions after the branch a \textit{misprediction region}. 
 
@@ -70,7 +96,7 @@ Figures \ref{fig:spec-input-ugly} and \ref{fig:spec-input-pretty} present an exa
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
 \begin{lstlisting}
-FU1	 #1	[1|4]
+FU1	 #1	[4]
 FU2	 @1	[1] *
     FU2 [4]
     FU2 [4]
@@ -84,11 +110,11 @@ FU2		[4]
         \centering
 \begin{tabular}{rr|ccc}
  &  & Res & Dep. & Lat. \\ \hline
-\textit{A:} &  & FU1 &  & $[1|4]$ \\
-\textit{*B:} &  & FU2 & $\{A\}$ & $[1]$ \\
-& \textit{C:} & FU2 &  & $[4]$ \\
-& \textit{D:} & FU2 &  & $[4]$ \\
-\textit{E:} &  & FU2 &  & $[4]$ \\
+\textit{A:} &  & FU1 &  & $4$ \\
+\textit{*B:} &  & FU2 & $\{A\}$ & $1$ \\
+& \textit{C:} & FU2 &  & $4$ \\
+& \textit{D:} & FU2 &  & $4$ \\
+\textit{E:} &  & FU2 &  & $4$ \\
 \end{tabular}
         \caption{Input format used further in the text}
         \label{fig:spec-input-pretty}
@@ -108,11 +134,14 @@ FU2		[4]
 
 \TODO{nested mispred region}
 
-\subsubsection{Framework implementation}
+\TODO{,ispred region should be sufficiently large}
 
-We decided to take C++ (\TODO{reference?}) as an implementation language as it is fast and includes a number of useful data structures in a standard library.
+\subsubsection{Framework Implementation}
 
-We define a single instruction as follows. It consists of type of FU to be scheduled at (we do not consider resource switch), latency in this FU, set of RAW dependencies. If instruction is a branch, $mispred_region$ is set to a positive value $n$ denoting the next $n$ instructions are in misprediction region of current instruction. If we want to model only the correct prediction, than $mispred_region$ is set to 0; this way branch behaves as an ordinary instruction. $br_pred$ flag specifies if the prediction is correct, which is needed when generating a pair of traces with variation in branch behavior.
+We decided to take C++ \cite{stroustrup_c_2015} as an implementation language as it is fast and includes a number of useful data structures in a standard library.
+
+
+We define a single instruction as follows. It consists of type of FU to be scheduled at (we do not consider resource switch), latency in this FU, set of RAW dependencies. If instruction is a branch, \texttt{mispred\_region} is set to a positive value $n$ denoting the next $n$ instructions are in misprediction region of current instruction. If we want to model only the correct prediction, then \texttt{mispred\_region} is set to 0; this way branch behaves as an ordinary instruction. \texttt{br\_pred} flag specifies if the prediction is correct, which is needed when generating a pair of traces with variation in branch behavior.
 
 \begin{lstlisting}[language=C]
 struct Instr {
@@ -160,53 +189,123 @@ To enable efficient exploration of trace pairs that demonstrate timing anomalies
 \end{enumerate}
 
 
-In summary, our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyze using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
+In summary, we created a tool capable of studying traces both in automated and guided way. Our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyze using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
 
-\section{Adapting the Definition of Binder et al.}
+\section{Generating TA Examples}
 
-To adapt the definition given by Binder et al. we should start with identifying the source of timing anomaly in case of branch predictor. In Binder's work the source was the variation was the latency, 
+TODO: describe the setting, the search space given to the tool to produce an example (comment on performance "example was found in ... ms", "... examples were found"). Explain why examples show TA
+
+We start with generating representative examples of branch-caused TA. The hypothesis is that the correct branch prediction may yield a longer execution than the same setting with misprediction. We want to have a simple example, thus decided we perform an exhaustive search in a state of the programs with:
+
+\begin{enumerate}
+    \item 4 committed instructions with;
+    \item At most 2 dependencies;
+    \item 1 branch instruction.
+\end{enumerate}
+
+The latency of branch instruction was chosen to be $1$ as conditionals jumps often require simple one-cycle operations (such as equality, more or equal, less or equal, etc.). The latencies of other instructions in the chosen setting are $4$. We have chosen single-scalar pipeline with 2 FUs.
+
+Our framework explored $4608$ input traces in around $150$ ms: among those 2 TAs were identified, explained in Examples \ref{ex:bp-ta} and \ref{ex:bp-ta-1}.
+
+\begin{example}
+Figure \ref{fig:bp-ta-inputs-0} shows an instruction trace found from generating random examples. $C$ is a branch with misprediction region ${D, E}$. There is one dependency: $A \rightarrow B$. Figure \ref{fig:bp-ta-traces-0} shows the associated pair of execution traces. In trace $\alpha$ instructions $D$ and $E$ as skipped due to the correct prediction, so $F$ is fetched right away. This causes an earlier execution of $F$, which leads to $FU2$ being busy at clock cycle $7$ and therefore instruction $B$ starts being executed later, thus causing a slowdown.
+
+\label{ex:bp-ta}
+\end{example}
+
+\begin{example}
+The other TA which input and execution trace are shown in Figures \ref{fig:bp-ta-inputs-1} and \ref{fig:bp-ta-traces-1} respectively is different from Example \ref{ex:bp-ta} only by the FU of instruction $C$ while the other instructions are the same (also the misprediction region is longer due to longer delay between branch prediction and branch resolution).
+\label{ex:bp-ta-1}
+\end{example}
+
 
 \begin{figure}[H]
     \centering
-    \begin{tabular}{rr|ccc}
-    &  & Res & Dep. & Lat. \\ \hline
-    \textit{A:} &  & FU1 &  & $[4]$ \\
-    \textit{B:} &  & FU2 & $\{A\}$ & $[4]$ \\
-    \textit{*C:} &  & FU2 &  & $[1]$ \\
-    & \textit{D:} & FU1 &  & $[4]$ \\
-    & \textit{E:} & FU1 &  & $[4]$ \\
-    \textit{F:} &  & FU2 &  & $[4]$ \\
-    \end{tabular}
-    \caption{}
-    \label{Input trace that produces branch-related TA}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \begin{tabular}{rr|ccc}
+            &  & Res. & Dep. & Lat. \\ \hline
+            \textit{A:} &  & FU1 &  & $4$ \\
+            \textit{B:} &  & FU2 & $\{A\}$ & $4$ \\
+            \textit{*C:} &  & \textbf{FU2} &  & $1$ \\
+            & \textit{D:} & FU1 &  & $4$ \\
+            & \textit{E:} & FU1 &  & $4$ \\
+            \textit{H:} &  & FU2 &  & $4$ \\
+        \end{tabular}
+        \caption{Input from Example \ref{ex:bp-ta}}
+        \label{fig:bp-ta-inputs-0}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        
+        \begin{tabular}{rr|ccc}
+            &  & Res. & Dep. & Lat. \\ \hline
+            \textit{A:} &  & FU1 &  & $4$ \\
+            \textit{B:} &  & FU2 & $\{A\}$ & $4$ \\
+            \textit{*C:} &  & \textbf{FU1} &  & $1$ \\
+            & \textit{D:} & FU1 &  & $4$ \\
+            & \textit{E:} & FU1 &  & $4$ \\
+            & \textit{F:} & FU1 &  & $4$ \\
+            & \textit{G:} & FU1 &  & $4$ \\
+            \textit{H:} &  & FU2 &  & $4$ \\
+        \end{tabular}
+        \caption{Input from Example \ref{ex:bp-ta-1}}
+        \label{fig:bp-ta-inputs-1}
+    \end{subfigure}
+    \caption{Two anomalous inputs found from the setting}
+    \label{fig:bp-ta-inputs}
 \end{figure}
+
 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/simple-branch-ta.png}
-    \caption{Execution trace with correct prediction is longer than the one with incorrect}
-    \label{fig:simple-ta-trace}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/simple-branch-ta.png}
+        \caption{Trace from Example \ref{ex:bp-ta}}
+        \label{fig:bp-ta-traces-0}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/simple-branch-ta-1.png}
+        \caption{Trace from Example \ref{ex:bp-ta-1}}
+        \label{fig:bp-ta-traces-1}
+    \end{subfigure}
+    \caption{Two TA traces found by the framework}
+    \label{fig:bp-ta-traces}
 \end{figure}
 
 
+The only essential difference between Examples \ref{ex:bp-ta} and \ref{ex:bp-ta-1} is the length of misprediction region. The scheduling of instructions $A$, $B$ and $H$ is exactly the same in the two examples. This gives us a hint that some anomalies may fall down in the same category which can give us a classification of TAs.
 
+Another notable observation is that here the anomalous effect can be explained by just by the later fetch of instruction $H$. Interestingly, the same effect can be obtained by modeling a cache miss for the fetch of $H$ as shown in Figure \ref{fig:equiv-to-bp-ta}. Here, int both $\alpha$ and $\beta$ the prediction is correct, however, there is a cache hit in $\alpha$ and cache miss in $\beta$.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/equiv-trace.png}
+    \caption{Cache miss on fetch of $H$ causing the same effect as branch misprediction}
+    \label{fig:equiv-to-bp-ta}
+\end{figure}
 
+\section{Formalizing Definition}
 
+TODO: start with latency, show it on example, formalize an assumption: show new contradicting examples
 
+For ex 2 3 BInder's def works ...
 
 \section{Gap problem}
 
 \subsection{Problem statement}
 
-\subsection{Formal Requirements for Causality Graph}
+TODO: explain that even without branching there is a problem
 
-\subsection{New Causality Definition}
+\subsection{Requirements for Causality Graph}
 
-\section{Taking BP state into account}
-Put to conclusion?
+TODO: formalize properties that we expect from causality graph and explain why they are violated
 
-\section{Results}
+\subsection{Towards New Causality Definition}
 
-put examples of different TA here
+TODO: propose a method that can be used to construct a "true causality" graph: set of constraints, moving events around

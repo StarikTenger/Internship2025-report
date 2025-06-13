@@ -1,2 +1,3 @@
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QSeveral decompositions can exist for modern processors.\\E$"}
 {"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QInpus assembly sequence Schdeduling on functional units comparison Illustration of timing anomalies: (a) normal execution, (b) execution with timing anomaly.\\E$"}
+{"rule":"AFFORD_VBG","sentence":"^\\QThe latencies of other instructions in the chosen setting are \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
