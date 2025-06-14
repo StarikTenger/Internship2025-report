@@ -111,7 +111,12 @@ Arcs are derived from a set of rules:
 
 \textbf{Causality graph} is achieved from ETDG by removing unnecessary edges. For each event we keep only the most relevant constraint. Only arcs of the form $e_1 \xrightarrow{e_2.time - e_1.time} e_2$ are left. Also arcs related to variations are excluded.
 
-\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\alpha$ relative to $\beta$. Let $e_\alpha\downarrow$ and $e_\beta\downarrow$ be the events corresponding to the end of the variation in both traces. If there exist events $e_\alpha$ and $e_\beta$, where $e_\beta = CospEvent(e_\alpha)$ and there is a path in causality graph of $\alpha$ between $e_\alpha\downarrow$ and $e_\alpha$, s.t. $\Delta(e_\beta\downarrow,e_\beta) < \Delta(e_\alpha\downarrow,e_\alpha)$.
+\TODO{caus graph: explaing more}
+
+\TODO{informal TA definition}
+
+\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\alpha$ relative to $\beta$. Let $\downarrow e_\alpha$ and $\downarrow e_\beta$ be the events corresponding to the end of the variation in both traces. If there exist events $e'_\alpha$ and $e'_\beta$, where $e'_\beta = CospEvent(e'_\alpha)$ and there is a path in causality graph of $\alpha$ between $\downarrow e_\alpha$ and $e'_\alpha$, s.t. $\Delta(\downarrow e_\beta,e'_\beta) < \Delta(\downarrow e_\alpha,e'_\alpha)$.
+
 
 
 \begin{figure}[htbp]

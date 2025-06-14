@@ -278,10 +278,11 @@ The other TA which input and execution trace are shown in Figures \ref{fig:bp-ta
     \label{fig:bp-ta-traces}
 \end{figure}
 
-
 The only essential difference between Examples \ref{ex:bp-ta} and \ref{ex:bp-ta-1} is the length of misprediction region. The scheduling of instructions $A$, $B$ and $H$ is exactly the same in the two examples. This gives us a hint that some anomalies may fall down in the same category which can give us a classification of TAs.
 
 Another notable observation is that here the anomalous effect can be explained by just by the later fetch of instruction $H$. Interestingly, the same effect can be obtained by modeling a cache miss for the fetch of $H$ as shown in Figure \ref{fig:equiv-to-bp-ta}. Here, int both $\alpha$ and $\beta$ the prediction is correct, however, there is a cache hit in $\alpha$ and cache miss in $\beta$.
+
+TODO: TA only on commit; no longer effect?
 
 \begin{figure}[H]
     \centering
@@ -295,6 +296,38 @@ Another notable observation is that here the anomalous effect can be explained b
 TODO: start with latency, show it on example, formalize an assumption: show new contradicting examples
 
 For ex 2 3 BInder's def works ...
+
+but what dfo we do if smth inside of spec region?
+
+\TODO{introdcue letters for instructions to make things clear}
+
+Since there exist an equivalent behavior (shown at Figure \ref{fig:equiv-to-bp-ta}) to Examples \ref{ex:bp-ta}  and \ref{ex:bp-ta-1}, it should be possible to adapt Binder's definition for these cases. Let us take an Example \ref{ex:bp-ta}. In Binder's definition the source of TA is a variation, thus it must be defined first. In trace showing equivalent behavior (Figure \ref{fig:equiv-to-bp-ta}) the variation is in IF latency i.e. the delay between $\IFa$ and $\IFr$. In the Example \ref{ex:bp-ta} both $\IFa$ and $\IFr$ are different between traces $\alpha$ and $\beta$ thus the same variation can not be used. We may use the fact that for a given instruction $\IFa$ coincides with $\IFr$ of previous instruction and use this $\IFr$ as the start of the latency. Thus, the latency can be measured between $\IFr$ of branch instruction and $\IFr$ of first instruction after misprediction region.
+
+However, we still need to take into account other variations, so the possible variation in IF of the after-branch instruction will be mixed with branch-related variation as their latencies overlap. So instead we propose using two events to signify the variation:
+
+\begin{enumerate}
+    \item \textbf{Branch Prediction (BP)} -- moment when prediction happens and speculative executions starts;
+    \item \textbf{Correct Branch Taken (BT)} -- the instruction from correct branch enters the pipeline.
+\end{enumerate}
+
+Note that $BP$ corresponds to $\IFr$ of branch instruction and $BT$ is $\IFa$ of a first instruction after misprediction region of the branch. In case of a single variation that is in branch prediction, the TA pattern is detected in the same way as shown in Figure \ref{fig:equiv-to-bp-ta}, but with latency being shorter by 1 clock cylce (\TODO{or more...}) and the delay being longer by the same value.
+
+Figure \ref{fig:bp-ta-analysed} shows this idea applied to Example \ref{ex:bp-ta}. Both latencies corresponding to variation are 1 clock cycle shorter compared to example shown in Figure \ref{fig:equiv-to-bp-ta}. The causality region also starts 1 clock cycle earlier, however is still going through the same events. Note here that we do not need any additional rules to build causality arcs.
+
+A major assumption that allowed us to adapt the definition is that the branch behavior is just postponing the fetch of instruction following misprediction region. In this case the behavior can be compared to the effect of cache miss in IF stage -- this is also not completely true, as the penalty for cache miss is fixed while the size of misprediction region depends on the time between the prediction and the resolution of the branch. Therefore, in the rest of the article we focus more on examples that do not fit the assumption.
+
+\TODO{Bound the effect of branch resolution?}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/simple-branch-ta-analysed.png}
+    \caption{\TODO{}}
+    \label{fig:bp-ta-analysed}
+\end{figure}
+
+\subsection{More complex examples}
+
+
 
 \section{Gap problem}
 
