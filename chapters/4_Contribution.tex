@@ -7,7 +7,7 @@ In our work we try to adjust Binder's definition to the setting of pipeline with
 \TODO{complete intro when chapter is done}
 
 \section{Methodology}
-To systematically investigate timing anomalies induced by branch predictors, it is essential to efficiently generate and analyze relevant examples. Manual construction of such examples is both time-consuming and error-prone, motivating the need for a tool that can automatically or semi-automatically produce and validate them. With such a tool, we can iteratively generate candidate scenarios, analyze their behavior, and assess the applicability of Binder et al.'s definition to these new cases. This process enables us to refine and adapt the definition as necessary, guided by empirical evidence from the generated examples.
+To systematically investigate timing anomalies induced by branch predictors, it is essential to efficiently generate and analyse relevant examples. Manual construction of such examples is both time-consuming and error-prone, motivating the need for a tool that can automatically or semi-automatically produce and validate them. With such a tool, we can iteratively generate candidate scenarios, analyse their behavior, and assess the applicability of Binder et al.'s definition to these new cases. This process enables us to refine and adapt the definition as necessary, guided by empirical evidence from the generated examples.
 
 Our initial efforts focused on studying and extending the TLA$^+$ \cite{lamport_specifying_2003} framework developed by Binder et al.  to support branch behavior. However, we encountered significant performance limitations and found the input format insufficiently flexible for rapid prototyping and adjustment of examples.
 
@@ -71,9 +71,9 @@ program == <<
 
 Despite using a model checker, the existing framework is capable to explore only the traces that fit the instruction template. This limits the explored space to what is manually defined by the user. Considering that branches are to be added, this limitation is becoming even more restricting. 
 
-Nevertheless, the framework may be used to manually specify the instruction trace using a template and generate a resulting pair execution traces. This allows to quickly sketch the examples and analyze them. Unfortunately this feature comes up with some issues.
+Nevertheless, the framework may be used to manually specify the instruction trace using a template and generate a resulting pair execution traces. This allows to quickly sketch the examples and analyse them. Unfortunately this feature comes up with some issues.
 
-The significant flaw we noticed was the performance. Firstly, the TLA$^+$ itself takes a few seconds to generate initial states of the model. Secondly, the graph is analyzed using java embedding which calls a script in python which in its turn deserializes a graph from text output of the model checker tool. 
+The significant flaw we noticed was the performance. Firstly, the TLA$^+$ itself takes a few seconds to generate initial states of the model. Secondly, the graph is analysed using java embedding which calls a script in python which in its turn deserializes a graph from text output of the model checker tool. 
 
 Moreover, the input is specified in lengthy TLA$+$ notation, which prevents fast sketching the examples. Thus it was decided not to write an extension of the existing framework, but to design a new one from scratch.
 
@@ -189,7 +189,7 @@ To enable efficient exploration of trace pairs that demonstrate timing anomalies
 \end{enumerate}
 
 
-In summary, we created a tool capable of studying traces both in automated and guided way. Our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyze using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
+In summary, we created a tool capable of studying traces both in automated and guided way. Our time-efficient implementation enables exploration of significantly larger state spaces that are infeasible to analyse using Binder's original framework. While TLA$^+$ offers greater expressive power for formalizing properties such as leveraging temporal logic, in the context of Binder et al., the verified property was ultimately specified as a state predicate embedded in Python code. Therefore, we believe that our choice of implementation does not result in a substantial loss of expressiveness or rigor for the intended analyses.
 
 \section{Generating TA Examples}
 
@@ -349,7 +349,7 @@ The understanding of the flaws of a base definition allows us to reason about fu
 
 \subsection{Early FU release}
 
-So far we were considering branch predictor related TA caused by postponing the fetch of first non-mispredicted instruction.  This is possible because no instruction is in execution phase in misprediction region and therefore a region has no effect on scheduling on FU. In subsequent examples we analyze the effect of misprediction region on instructions fetched before the branch.
+So far we were considering branch predictor related TA caused by postponing the fetch of first non-mispredicted instruction.  This is possible because no instruction is in execution phase in misprediction region and therefore a region has no effect on scheduling on FU. In subsequent examples we analyse the effect of misprediction region on instructions fetched before the branch.
 
 \begin{example}
 \textbf{Nested Misprediction Region}

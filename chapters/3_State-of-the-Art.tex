@@ -2,7 +2,7 @@
 
 \section{Evolution of TA-definitions}
 
-A timing anomaly (TA) is a situation where a local favorable condition leads to a globally worse state (for example, a cache hit leading to slowdown of the program).  The notion of timing anomalies dates back to 1999 when they were first introduced by Lundqvist and Stenstr\"om \cite{lundqvist_timing_1999} in context of timing analysis. Basically, TA is a feature of an architecture which makes it hard to analyze timing behavior properly. Such anomalies may have a tremendous impact on execution time which is not captured by the WET analysis. Especially dangerous is so-called domino effect, also discovered by Lundqvist and Stenstr\"om. It leads to an unbounded slowdown effect of the TA.
+A timing anomaly (TA) is a situation where a local favorable condition leads to a globally worse state (for example, a cache hit leading to slowdown of the program).  The notion of timing anomalies dates back to 1999 when they were first introduced by Lundqvist and Stenstr\"om \cite{lundqvist_timing_1999} in context of timing analysis. Basically, TA is a feature of an architecture which makes it hard to analyse timing behavior properly. Such anomalies may have a tremendous impact on execution time which is not captured by the WET analysis. Especially dangerous is so-called domino effect, also discovered by Lundqvist and Stenstr\"om. It leads to an unbounded slowdown effect of the TA.
 
 Despite the fact that timing anomalies have been known for a long time, the exact TA definition is a subject to debates. Since 1999 several attempts were made to formalize the notion of TA, some of them being more focused on the exact microarchitecture (like \cite{gruin_minotaur_2023}) and some being more abstract and general (like \cite{binder_definitions_2022}, \cite{hahn_design_2020}). In this section we are giving an overview of existing definitions comparing their strengths and weaknesses.
 
@@ -37,7 +37,14 @@ This poses a question whether it is reasonable to capture a local execution time
 
 \subsection{Step-functions Intersections}
 
-Similar definition is proposed by Cassez et al. \cite{cassez_what_2012}. The difference is that only global execution time is taken into account. Thus, TA arises when step-functions (that map instructions to their absolute completion time) of two traces intersect. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/step-functions.png}
+    \caption{Execution time as step functions (from \cite{binder_definitions_2022})}
+    \label{fig:exec-time-step-fun}
+\end{figure}
+
+Similar definition is proposed by Cassez et al. \cite{cassez_what_2012}. The difference is that only global execution time is taken into account. Thus, TA arises when step-functions (that map instructions to their absolute completion time) of two traces intersect. For example, Figure \ref{fig:exec-time-step-fun} shows execution times as step functions from example \ref{ex:simple-ta}. The two functions intersect between $C$ and $D$ thus signalling an anomaly.
 
 \begin{figure}[!htb]
     \centering
@@ -50,18 +57,25 @@ This definition also leads to misleading effect with scenario found by Binder \c
 
 \subsection{Component Occupation}
 
-An alternative approach is proposed by Kirner et al. \cite{kirner_precise_2009}. In their work the idea is to partition hardware into components and for each define the occupation by instruction (for how many cycles it processes the instruction). TA arises when a shorter component occupation coincides with a longer execution time in a chosen trace. However, as is shown is \cite{binder_definitions_2022} the results depend on how we define component partition which imposes the major concern against using this definition.
+An alternative approach is proposed by Kirner et al. \cite{kirner_precise_2009}. In their work the idea is to partition hardware into components and for each define the occupation by instruction (for how many cycles it processes the instruction). TA arises when a shorter component occupation coincides with a longer execution time in a chosen trace. For example, take Figure \ref{fig:step-good} and consider $FU_1$ and $FU_2$ as hardware components. In total, $FU_1$ is occupied for 4 cycles in trace $\alpha$ and 6 cycles in trace $\beta$. In the same time the execution time of $\alpha$ is longer, so a TA is identified.
+
+A main challenge with this definition is choosing the right components. The authors do not give a formal way to define what a component is or what properties it should have. For example, in the previous case, it is not clear if the chosen partitioning is valid, since functional units like $FU_1$ and $FU_2$ are controlled by the processor's instruction scheduling and thus are not fully independent. Another problem is that the occupation time of a component can change because of instructions that are not directly related to the timing anomaly. For instance, an earlier or later instruction, which does not affect the total execution time, might still reduce the occupation time of a component and cause a false positive. Similarly, false negatives can also occur. Additionally, if a resource switch happens (for example, an instruction is executed on a different functional unit in another trace), it can make the comparison of occupation times unreliable and further complicate the detection of timing anomalies.
 
 \TODO{counterexample}
 
 \subsection{Instruction Locality}
+
+\TODO{Instruction Locality}
+
 \subsection{Progress-based definition}
+
+\TODO{Progress-based definition}
 
 Hahn and Reineke \cite{hahn_design_2020} introduce the notion of progress, ... \cite{gruin_minotaur_2023}
 
 \subsection{Event Time Dependency Graph}
 
-Binder et al. \cite{binder_definitions_2022} define TAs using the notion of causality between events in execution trace. In this work, multiscalar OoO pipeline is considered. The processor state is described as a composition of states of each of the resource: \textit{IF, ID, set of RS, set of FU, ROB, COM}. Each component holds the information about instruction it is currently processing, including required registers and remaining clock cycles.
+Binder et al. \cite{binder_definitions_2022} define TAs using the notion of causality between events in execution trace. In this work, superscalar OoO pipeline is considered. The processor state is described as a composition of states of each of the resource: \textit{IF, ID, set of RS, set of FU, ROB, COM}. Each component holds the information about instruction it is currently processing, including required registers and remaining clock cycles.
 
 Notion of event is introduced based on qualitative changes in the pipeline associated to instruction progressing through stages. Event from execution trace (denoted as $e \in Events(\alpha$)) is a triple $(i,r,t)$, where $i$ is the instruction to which event is related, $r$ is the associated resource and the action (acquisition or release) and $t$ is a timestamp corresponding to the clock cycle when event occurs.
 
@@ -79,18 +93,30 @@ Variations are chosen as a source of timing anomalies. They may represent differ
 
 Arc is a triple $(e_1, e_2, w)$ written as $e_1 \xrightarrow{w} e_2$ where $e_1$ is the source event node, $e_2$ -- destination node and $w$ is a lower bound of the delay between the two events. The arc means that at least $w$ clock cycles must pass between $e_1$ and $e_2$. 
 
-\TODO{make rules more clear}
-
 Arcs are derived from a set of rules:
 \begin{enumerate}
     \item \textbf{Order of pipeline stages}
     
-    $(I, \IFa, t_0) \xrightarrow{lat_{IF}} (I, \IFr, t_1) \xrightarrow{0} (I, \IDa, t_2) \xrightarrow{1} (I, \IDr, t_3) \xrightarrow{0} (I, \FUa, t_4)  \xrightarrow{lat_{FU}} (I, \FUr, t_5)  \xrightarrow{0} (I, COM, t_6)$
+    Every instruction goes through the pipeline stages in a fixed order: first it is fetched, then decoded, then executed and only then committed. This creates a following dependencies for a given instruction $I$:
+
+    \begin{itemize}
+        \item $(I, \IFr, t_1) \xrightarrow{0} (I, \IDa, t_2)$
+        \item $(I, \IDr, t_3) \xrightarrow{0} (I, \FUa, t_4)$
+        \item $(I, \FUr, t_5)  \xrightarrow{0} (I, COM, t_6)$
+    \end{itemize}
+
+    \item \textbf{Resource use}
+
+    An instruction takes one or several clock cycles to go through each stage and cannot pass them faster.
+
+    \begin{itemize}
+        \item $(I, \IFa, t_0) \xrightarrow{lat_{IF}} (I, \IFr, t_1)$
+        \item $(I, \IDa, t_2) \xrightarrow{1} (I, \IDr, t_3)$
+        \item $(I, \FUa, t_4)  \xrightarrow{lat_{FU}} (I, \FUr, t_5)$
+    \end{itemize}
 
     $lat_{IF}$ and $lat_{FU}$ are the latencies of IF and FU stages respectively.
 
-    \item \textbf{Resource use}
-    
     $lat_{IF} = t_1 - t_0$, $lat_{FU} = t_5 - t_4$
 
     \item \textbf{Instruction order}
@@ -102,7 +128,7 @@ Arcs are derived from a set of rules:
 
     \item \textbf{Data dependencies}
     
-    RAW dependency between $I_1$ and $I_2$ (\TODO{dep notation}) restricts the execution order of the instructions:  $(I_1, \FUr, t) \xrightarrow{0} (I_2, \FUa, t')$.
+    RAW dependency between $I_1$ and $I_2$ restricts the execution order of the instructions:  $(I_1, \FUr, t) \xrightarrow{0} (I_2, \FUa, t')$.
     
     \item \textbf{Resource contention}
     
@@ -113,11 +139,9 @@ Arcs are derived from a set of rules:
 
 \textbf{Causality graph} is achieved from ETDG by removing unnecessary edges. For each event we keep only the most relevant constraint. Only arcs of the form $e_1 \xrightarrow{e_2.time - e_1.time} e_2$ are left. Also arcs related to variations are excluded.
 
-\TODO{caus graph: explaing more}
+\textbf{Timing anomaly} according to Binder consists of three observations: variation, causality and slowdown. If a trace exhibits a favorable variation and in a causal region there is an event which is delayed, then TA is signalled.
 
-\TODO{informal TA definition}
-
-\textbf{Timing anomaly} is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\alpha$ relative to $\beta$. Let $\downarrow e_\alpha$ and $\downarrow e_\beta$ be the events corresponding to the end of the variation in both traces. If there exist events $e'_\alpha$ and $e'_\beta$, where $e'_\beta = CospEvent(e'_\alpha)$ and there is a path in causality graph of $\alpha$ between $\downarrow e_\alpha$ and $e'_\alpha$, s.t. $\Delta(\downarrow e_\beta,e'_\beta) < \Delta(\downarrow e_\alpha,e'_\alpha)$.
+Formally, TA is observed on pair of traces $\alpha$ and $\beta$ if there exists a favorable variation in $\alpha$ relative to $\beta$. Let $\downarrow e_\alpha$ and $\downarrow e_\beta$ be the events corresponding to the end of the variation in both traces. If there exist events $e'_\alpha$ and $e'_\beta$, where $e'_\beta = CospEvent(e'_\alpha)$ and there is a path in causality graph of $\alpha$ between $\downarrow e_\alpha$ and $e'_\alpha$, s.t. $\Delta(\downarrow e_\beta,e'_\beta) < \Delta(\downarrow e_\alpha,e'_\alpha)$.
 
 
 

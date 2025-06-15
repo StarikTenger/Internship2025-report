@@ -15,7 +15,7 @@ Early processors executed instructions sequentially, completing one instruction 
 
 Although the exact decomposition into stages may vary across architectures, a typical processor pipeline consists of five fundamental stages. More advanced processors may further subdivide these stages to enhance performance.
 
-We start by describing the fundamental pipeline stages and then introduce some optimizations such as multiscalar pipelines, out-of-order execution and branch prediction.
+We start by describing the fundamental pipeline stages and then introduce some optimizations such as superscalar pipelines, out-of-order execution and branch prediction.
 
 \begin{enumerate}
     \item \textbf{Instruction Fetch (IF)}: The processor retrieves the next instruction from memory by the address from the program counter (PC). This access typically leverages the instruction cache to reduce latency.
@@ -73,11 +73,16 @@ In a conventional pipeline, operands for an instruction are read from the regist
     \label{fig:bypass-network}
 \end{figure}
 
-\subsection{Multiscalar Execution}
+\subsection{Superscalar Execution}
 
-Instead of fetching instructions one by one, it is possible to fetch several ones in the same time. This also means that other stages are also duplicated to accommodate all fetched instructions. Since neighbor instructions may be independent this can significantly increase the performance. However, duplicating each stage is costly, while it is relatively easy for IF, ID and COM, execution and accessing memory is much harder to duplicate.
+Superscalar execution allows the processor to fetch and execute multiple instructions at the same time. This means that some pipeline stages, such as instruction fetch (IF), decode (ID), and commit (COM), are duplicated to handle several instructions in parallel. For example, in Figure \ref{fig:superscalar}, six instructions are fetched as three pairs, which saves one clock cycle for each pair compared to a non-superscalar pipeline. If the instructions are independent, this can greatly improve performance. However, duplicating every pipeline stage is expensive. While it is relatively easy to duplicate IF, ID, and COM stages, it is much harder to duplicate the execution and memory access stages, so creating high superscalar-degree pipelines comes with a great hardware cost.
 
-\TODO{picture}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/multiscalar-execution.png}
+    \caption{Degree 2 superscalar pipeline: each pipeline stage can process up to two instructions per cycle, provided the instructions are independent.}
+    \label{fig:superscalar}
+\end{figure}
 
 \subsection{Out-of-Order (OoO) Pipeline}
 Out-of-Order (OoO) execution enables instructions to be processed based on data dependencies rather than strictly adhering to program order. While the architectural state (as defined by the ISA) must be updated in program order to preserve correctness, many instructions are independent and can be executed as soon as their operands are available. This parallelism improves resource utilization and overall throughput.
@@ -90,12 +95,12 @@ Key hardware structures enable OoO execution:
 
 \textbf{Reorder Buffer (ROB):} The ROB is a FIFO structure that tracks all instructions in flight between decode and commit. When an instruction enters the out-of-order region, it is allocated an entry in the ROB. Upon completion of execution, the instruction is marked as complete in the ROB. The commit stage retires instructions from the ROB in program order, updating the architectural state only when instructions at the head of the ROB have finished execution. This mechanism ensures that the ISA state is updated in the correct order, even though execution may have occurred out of order.
 
-Figure \ref{fig:ooo-pipeline} shows the diagram of stage interconnections in processor. It represents the two optimizations discussed: multiscalar and OoO execution.
+Figure \ref{fig:ooo-pipeline} shows the diagram of stage interconnections in processor. It represents the two optimizations discussed: superscalar and OoO execution.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6 \textwidth]{figures/ooo-pipeline.png}
-    \caption{Out-of-Order multiscalar pipeline diagram}
+    \caption{Out-of-Order superscalar pipeline diagram}
     \label{fig:ooo-pipeline}
 \end{figure}
 
