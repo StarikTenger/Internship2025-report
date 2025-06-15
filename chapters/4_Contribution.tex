@@ -347,7 +347,97 @@ The understanding of the flaws of a base definition allows us to reason about fu
 \end{figure}
 
 
-\subsection{???}
+\subsection{Early FU release}
+
+So far we were considering branch predictor related TA caused by postponing the fetch of first non-mispredicted instruction.  This is possible because no instruction is in execution phase in misprediction region and therefore a region has no effect on scheduling on FU. In subsequent examples we analyze the effect of misprediction region on instructions fetched before the branch.
+
+\begin{example}
+We consider an instruction trace from Figure \ref{fig:nested-bp-ta-trace} which consists of two nested misprediction regions: of instructions $C$ and $D$ respectively. We explore the variation in the prediction of $D$ -- in trace $\alpha$ (Figure \ref{fig:nested-bp-ta-trace}) it is correct yielding an overall longer execution time than in trace $\beta$ where the prediction is incorrect.
+    
+\label{ex:nested-bp-ta}
+\end{example}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{rrr|ccc}
+    &  &  & Res & Dep. & Lat. \\ \hline
+    \textit{A:} &  &  & FU1 &  & $5$ \\
+    \textit{B:} &  &  & FU2 & $\{A\}$ & $4$ \\
+    \textit{C:} &  &  & FU1 &  & $1$ \\
+    & \textit{*D:} &  & FU2 &  & $1$ \\
+    &  & \textit{E:} & FU2 &  & $4$ \\
+    &  & \textit{F:} & FU2 &  & $4$ \\
+    & \textit{G:} &  & FU2 &  & $4$ \\
+    \end{tabular}
+    \caption{Instruction trace from example \ref{ex:nested-bp-ta}}
+    \label{fig:nested-bp-ta-input}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/nested-bp-ta.png}
+    \caption{Execution trace of Example \ref{ex:nested-bp-ta}}
+    \label{fig:nested-bp-ta-trace}
+\end{figure}
+
+
+In Figure \ref{fig:nested-bp-ta-trace} we try to construct a causality graph for trace $\alpha$. On the picture we show the causal path form variation to the commit of $C$. However, one causal arc on the path (encircled in red) does not fit in the definition: Remember that in Binder's definition we have the \textit{rule 4} which creates a ETDG-arc $(\FUa \xrightarrow{lat_{FU}} \FUr)$. In Example \ref{ex:nested-bp-ta} the FU-latency of $G$ is $4$, however in trace $\alpha$ the delay between $\FUa_G$ and $\FUr_G$ is only 2 clock cycles because of the earlier release of FU2 as the result of squashing. So according to the Binder's definition the arc cannot be established and not TA exists.
+
+Likely, we are just missing a rule that suffices to describe anomaly here. Intuitively, $\FUr_G$ is caused by the squashing by the branch resolution. Therefore, $(\FUa_C \xrightarrow{0} \FUr_G)$ arc would make sense (Assumption \ref{ass:FU-squashing}). However, it does not allow to construct a causality path in Example \ref{ex:nested-bp-ta} that can explain the TA happening. 
+
+\begin{assumption}
+If FU is released as the result of squashing, the FU release of corresponding branch is causal to FU release of the squashed instruction.
+\label{ass:FU-squashing}
+\end{assumption}
+
+Indeed, what we see in this example is that the earlier fetch of $G$ allows it to start executing, which prevents $B$ from starting the execution earlier. In fact, it is a reordering problem similar to Example \ref{ex:bp-ta}. For that reason we take an Assumption \ref{ass:FU-acq-rel} that effectively fills the gap in the causality path.
+
+\TODO{why this is not a gap problem?}
+
+\begin{assumption}
+The FU acquisition is always causal to the respective FU release.
+\label{ass:FU-acq-rel}
+\end{assumption}
+
+However, the following example shows that Assumption \ref{ass:FU-acq-rel} is not always correct. 
+
+\begin{example}
+We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input} the pair of executino traces with TA is shown at Figure \ref{fig:lat-mispred-ta-trace}. Here the variation is in latency of $B$, but the effect propagates through misprediction region of $F$ which consists of one instruction $G$. 
+\label{ex:lat-mispred-ta}
+\end{example}
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{rr|ccc}
+    &  & Res & Dep. & Lat. \\ \hline
+    \textit{A:} &  & FU3 &  & $9$ \\
+    \textit{B:} &  & FU1 &  & $6|7$ \\
+    \textit{C:} &  & FU2 & $\{A, B\}$ & $4$ \\
+    \textit{D:} &  & FU1 & $\{C\}$ & $4$ \\
+    \textit{E:} &  & FU2 & $\{B\}$ & $4$ \\
+    \textit{F:} &  & FU1 &  & $1$ \\
+    & \textit{G:} & FU2 &  & $4$ \\
+    \end{tabular}
+    \caption{Instruction trace of Example \ref{ex:lat-mispred-ta}}
+    \label{fig:lat-mispred-ta-input}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/lat-mispred.png}
+    \caption{Execution trace of Example \ref{ex:lat-mispred-ta}}
+    \label{fig:lat-mispred-ta-trace}
+\end{figure}
+
+Example \ref{ex:lat-mispred-ta} illustrates the problem with Assumption \ref{ass:FU-acq-rel}:  here if we try to draw a causality arc $(\FUa_G \xrightarrow{2} \FUr_G)$ in trace $\alpha$, the causality path can not build between $FUr_B$ and $COM_E$. Instead, the Assumption \ref{ass:FU-squashing} works here allowing us to draw an arc $(\FUr_F \xrightarrow{0} \FUr_G)$.
+
+\TODO{GAP problem}
+
+\TODO{problem: consider only one trace}
 
 \TODO{Conclusion: we need another definition}
 

@@ -107,7 +107,46 @@
 \newcommand{\TODO}[1]{\colorbox{red!30}{TODO: \textbf{#1}}}
 % \newcommand{\TODO}[1]{}
 
-\newtheorem{example}{Example}
+\usepackage[most]{tcolorbox}
+\newcounter{example}
+\newtcolorbox{examplebox}[2][]{
+    colback=gray!10,
+    colframe=gray!80,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=6pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    fonttitle=\bfseries,
+    title={Example~#2:~#1}
+}
+\newenvironment{example}[1][]{
+    \refstepcounter{example}
+    \begin{examplebox}[#1]{\theexample}
+}{
+    \end{examplebox}
+}
+
+\newcounter{assumption}
+\newtcolorbox{assumptionbox}[2][]{
+    colback=blue!5,
+    colframe=blue!40,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=6pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    fonttitle=\bfseries,
+    title={Assumption~#2:~#1}
+}
+\newenvironment{assumption}[1][]{
+    \refstepcounter{assumption}
+    \begin{assumptionbox}[#1]{\theassumption}
+}{
+    \end{assumptionbox}
+}
 
 \renewcommand{\maketitlehookd}{% 
 \vfill{}  \large\par\noindent  

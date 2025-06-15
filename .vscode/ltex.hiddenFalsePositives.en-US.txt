@@ -1,3 +1,5 @@
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QSeveral decompositions can exist for modern processors.\\E$"}
 {"rule":"POSSESSIVE_APOSTROPHE","sentence":"^\\QInpus assembly sequence Schdeduling on functional units comparison Illustration of timing anomalies: (a) normal execution, (b) execution with timing anomaly.\\E$"}
 {"rule":"AFFORD_VBG","sentence":"^\\QThe latencies of other instructions in the chosen setting are \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QIn Example \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q the FU-latency of \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q is \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q, however in trace \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q the delay between \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q is only 2 clock cycles because of\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QRemember that in Binder's definition we have the rule 4 which creates a ETDG-arc \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
