@@ -2,7 +2,7 @@
 
 \section{Evolution of TA-definitions}
 
-A timing anomaly (TA) is a situation where a local favorable condition leads to a globally worse state (for example, a cache hit leading to slowdown of the program).  The notion of timing anomalies dates back to 1999 when they were first introduced by Lundqvist and Stenstr\"om \cite{lundqvist_timing_1999} in context of timing analysis. Basically, TA is a feature of an architecture which makes it hard to analyse timing behavior properly. Such anomalies may have a tremendous impact on execution time which is not captured by the WET analysis. Especially dangerous is so-called domino effect, also discovered by Lundqvist and Stenstr\"om. It leads to an unbounded slowdown effect of the TA.
+A timing anomaly (TA) is a situation where a local favorable condition leads to a globally worse state (for example, a cache hit leading to slowdown of the program).  The notion of timing anomalies dates back to 1999 when they were first introduced by Lundqvist and Stenstr\"om \cite{lundqvist_timing_1999} in context of timing analysis. Basically, TA is a feature of an architecture which makes it hard to analyze timing behavior properly. Such anomalies may have a tremendous impact on execution time which is not captured by the WET analysis. Especially dangerous is so-called domino effect, also discovered by Lundqvist and Stenstr\"om. It leads to an unbounded slowdown effect of the TA.
 
 Despite the fact that timing anomalies have been known for a long time, the exact TA definition is a subject to debates. Since 1999 several attempts were made to formalize the notion of TA, some of them being more focused on the exact microarchitecture (like \cite{gruin_minotaur_2023}) and some being more abstract and general (like \cite{binder_definitions_2022}, \cite{hahn_design_2020}). In this section we are giving an overview of existing definitions comparing their strengths and weaknesses.
 
@@ -63,11 +63,12 @@ A main challenge with this definition is choosing the right components. The auth
 
 \TODO{counterexample}
 
-\subsection{Instruction Locality}
+% \subsection{Instruction Locality}
+
 
 \TODO{Instruction Locality}
 
-\subsection{Progress-based definition}
+% \subsection{Progress-based definition}
 
 \TODO{Progress-based definition}
 

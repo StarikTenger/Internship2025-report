@@ -19,4 +19,4 @@ non-mispredicted
 superscalar-degree
 WCET-bound
 WCET
-analyse
+analyze
