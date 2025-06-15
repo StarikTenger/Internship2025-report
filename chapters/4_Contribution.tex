@@ -352,6 +352,8 @@ The understanding of the flaws of a base definition allows us to reason about fu
 So far we were considering branch predictor related TA caused by postponing the fetch of first non-mispredicted instruction.  This is possible because no instruction is in execution phase in misprediction region and therefore a region has no effect on scheduling on FU. In subsequent examples we analyze the effect of misprediction region on instructions fetched before the branch.
 
 \begin{example}
+\textbf{Nested Misprediction Region}
+
 We consider an instruction trace from Figure \ref{fig:nested-bp-ta-trace} which consists of two nested misprediction regions: of instructions $C$ and $D$ respectively. We explore the variation in the prediction of $D$ -- in trace $\alpha$ (Figure \ref{fig:nested-bp-ta-trace}) it is correct yielding an overall longer execution time than in trace $\beta$ where the prediction is incorrect.
     
 \label{ex:nested-bp-ta}
@@ -361,7 +363,7 @@ We consider an instruction trace from Figure \ref{fig:nested-bp-ta-trace} which 
 \begin{figure}[H]
     \centering
     \begin{tabular}{rrr|ccc}
-    &  &  & Res & Dep. & Lat. \\ \hline
+    &  &  & Res. & Dep. & Lat. \\ \hline
     \textit{A:} &  &  & FU1 &  & $5$ \\
     \textit{B:} &  &  & FU2 & $\{A\}$ & $4$ \\
     \textit{C:} &  &  & FU1 &  & $1$ \\
@@ -404,7 +406,8 @@ The FU acquisition is always causal to the respective FU release.
 However, the following example shows that Assumption \ref{ass:FU-acq-rel} is not always correct. 
 
 \begin{example}
-We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input} the pair of executino traces with TA is shown at Figure \ref{fig:lat-mispred-ta-trace}. Here the variation is in latency of $B$, but the effect propagates through misprediction region of $F$ which consists of one instruction $G$. 
+\textbf{Latency Impact Through Misprediction Region}
+We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input} the pair of execution traces with TA is shown at Figure \ref{fig:lat-mispred-ta-trace}. Here the variation is in latency of $B$, but the effect propagates through misprediction region of $F$ which consists of one instruction $G$. 
 \label{ex:lat-mispred-ta}
 \end{example}
 
@@ -412,7 +415,7 @@ We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input} the 
 \begin{figure}[H]
     \centering
     \begin{tabular}{rr|ccc}
-    &  & Res & Dep. & Lat. \\ \hline
+    &  & Res. & Dep. & Lat. \\ \hline
     \textit{A:} &  & FU3 &  & $9$ \\
     \textit{B:} &  & FU1 &  & $6|7$ \\
     \textit{C:} &  & FU2 & $\{A, B\}$ & $4$ \\
@@ -435,11 +438,50 @@ We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input} the 
 
 Example \ref{ex:lat-mispred-ta} illustrates the problem with Assumption \ref{ass:FU-acq-rel}:  here if we try to draw a causality arc $(\FUa_G \xrightarrow{2} \FUr_G)$ in trace $\alpha$, the causality path can not build between $FUr_B$ and $COM_E$. Instead, the Assumption \ref{ass:FU-squashing} works here allowing us to draw an arc $(\FUr_F \xrightarrow{0} \FUr_G)$.
 
-\TODO{GAP problem}
-
 \TODO{problem: consider only one trace}
 
 \TODO{Conclusion: we need another definition}
+
+\begin{example}
+\textbf{Branch Prediction + Gap problem}
+
+We modify Example \ref{ex:nested-bp-ta} by increasing latencies of instructions $A$ and $C$ by 2 (input trace in Figure \ref{fig:bp-gap-input}). This also requires us to define a larger misprediction region. The resulting pair of traces (Figure \ref{fig:bp-gap-trace}) exhibit a similar TA: instruction $J$ is fetched in trace $\alpha$ and postpones $B$.
+
+\label{ex:bp-gap}
+\end{example}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{rrr|ccc}
+    &  &  & Res. & Dep. & Lat. \\ \hline
+    \textit{A:} &  &  & FU1 &  & $7$ \\
+    \textit{B:} &  &  & FU2 & $\{A\}$ & $4$ \\
+    \textit{C:} &  &  & FU1 &  & $1$ \\
+    & \textit{*D:} &  & FU2 &  & $3$ \\
+    &  & \textit{E:} & FU2 &  & $4$ \\
+    &  & \textit{F:} & FU2 &  & $4$ \\
+    &  & \textit{G:} & FU2 &  & $4$ \\
+    &  & \textit{H:} & FU2 &  & $4$ \\
+    & \textit{I:} &  & FU1 &  & $4$ \\
+    & \textit{J:} &  & FU2 &  & $4$ \\
+    \end{tabular}    
+
+    \caption{Instruction trace from Example \ref{ex:bp-gap}}
+    \label{fig:bp-gap-input}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/bp-gap.png}
+    \caption{Execution trace from Example \ref{ex:bp-gap}}
+    \label{fig:bp-gap-trace}
+\end{figure}
+
+Example \ref{ex:bp-gap} shows that the gap problem can also arise in misprediction region. $\FUr_J$ in trace $\alpha$ is not detected as a part of causal region of the end of the variation $\IFa_I$ because of the resource contention rule which creates a stronger arc $(\FUr_D \xrightarrow{0} \FUa_J)$.
+
+In summary, our analysis demonstrates that while the definition of Binder et al. shows promise for application to branch prediction scenarios, its adaptation requires the introduction of additional assumptions. However, the two assumptions we considered are mutually contradictory, precluding the formulation of a consistent and comprehensive definition. Furthermore, the original definition is susceptible to the gap problem, which also manifests in the context of branch prediction-induced timing anomalies.
+
+We contend that these issues stem from fundamental limitations in the underlying notion of causality employed by the framework. Both the gap problem and the contradictions between the proposed assumptions appear to arise from the same conceptual shortcomings. Consequently, in the following section, we propose a novel approach to causality that aims to address these issues.
 
 \section{Towards New Causality Definition}
 
