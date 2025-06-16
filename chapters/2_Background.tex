@@ -32,7 +32,7 @@ We start by describing the fundamental pipeline stages and then introduce some o
 
 Although pipelining significantly improves throughput, it is still susceptible to stalls -- situations where instruction progress is temporarily halted for one or more clock cycles. These stalls often result from dependencies and interactions among instructions within the program. 
 
-In this section, we provide an overview of these hazards and later we discuss hardware mechanisms designed to mitigate their impact.
+In this section, we provide an overview of these hazards, and later we discuss hardware mechanisms designed to mitigate their impact.
 
 \subsection{Data Hazards}
 
@@ -44,7 +44,7 @@ Pipeline stalls can arise due to dependencies between instructions that access t
 
 \textbf{Write-After-Read (WAR)} dependencies arise when a younger instruction writes to a register that a previous instruction still needs to read. If the write occurs before the read, the earlier instruction may read an incorrect value.
 
-RAW hazards are inherent to all architectures and must be handled to ensure correct execution. WAW and WAR hazards do not occur in simple in-order pipelines but must be addressed in more complex architectures such as out-of-order model, which will will be discussed in more details in the subsequent sections.
+RAW hazards are inherent to all architectures and must be handled to ensure correct execution. WAW and WAR hazards do not occur in simple in-order pipelines but must be addressed in more complex architectures such as out-of-order model, which will be discussed in more details in the subsequent sections.
 
 \subsection{Control Hazards}
 
@@ -73,7 +73,7 @@ In a conventional pipeline, operands for an instruction are read from the regist
 
 \subsection{Superscalar Execution}
 
-Superscalar execution allows the processor to fetch and execute multiple instructions at the same time. This means that some pipeline stages are duplicated to handle several instructions in parallel. For example, in Figure \ref{fig:superscalar}, six instructions are fetched as three pairs, which saves one clock cycle for each pair compared to a non-superscalar pipeline. If the instructions are independent, this can greatly improve performance. However, duplicating every pipeline stage is expensive. While it is relatively easy to duplicate IF, ID, and COM stages, it is much harder to duplicate the execution and memory access stages, so creating high superscalar-degree pipelines comes with a great hardware cost.
+\textit{Superscalar} (or multi-issue) execution allows the processor to fetch and execute multiple instructions at the same time. This means that some pipeline stages are duplicated to handle several instructions in parallel. For example, in Figure \ref{fig:superscalar}, six instructions are fetched as three pairs, which saves one clock cycle for each pair compared to a single-issue pipeline. If the instructions are independent, this can greatly improve performance. However, duplicating every pipeline stage is expensive. While it is relatively easy to duplicate IF, ID, and COM stages, it is much harder to duplicate the execution and memory access stages, so creating high superscalar-degree pipelines comes with a great hardware cost.
 
 \begin{figure}[H]
     \centering
@@ -170,7 +170,7 @@ In more advanced predictors the emphasis is on BHT-indexing. Two-bit predictor i
     \label{fig:bp-two-level-local}
 \end{figure}
 
-The drawback of using the predictor we described is the use of a global history. For some branches the outcome is not related to the others, so an alternative version of adaptive predictor uses a \textit{per-address branch history table (PBHT)} which stores multiple entries of history register which are indexed by the lower bitts of branch address (Figure \ref{fig:bp-two-level-local}).
+The drawback of using the predictor we described is the use of a global history. For some branches the outcome is not related to the others, so an alternative version of adaptive predictor uses a \textit{per-address branch history table (PBHT)} which stores multiple entries of history register which are indexed by the lower bits of branch address (Figure \ref{fig:bp-two-level-local}).
 
 
 

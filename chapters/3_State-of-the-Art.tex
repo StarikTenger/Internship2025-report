@@ -55,7 +55,7 @@ A similar definition is proposed by Cassez et al. \cite{cassez_what_2012}. The d
     \label{fig:step-2}
 \end{figure}
 
-This definition also leads to a misleading effect with a scenario found by Binder \cite{binder_definitions_2022}. Figure \ref{fig:step-2} illustrates this by comparing two traces. The step-functions of traces $\alpha$ and $\beta$ intersect, however there is no counter-intuitive TA happening as $\alpha$ is both longer and has a longer latency for the IF stage of instructions $C$ and $D$.
+This definition also leads to a misleading effect with a scenario found by Binder \cite{binder_definitions_2022}. Figure \ref{fig:step-2} illustrates this by comparing two traces. The step-functions of traces $\alpha$ and $\beta$ intersect, however there is no counterintuitive TA happening as $\alpha$ is both longer and has a longer latency for the IF stage of instructions $C$ and $D$.
 
 \subsection{Component Occupation}
 
@@ -98,7 +98,7 @@ Arcs are derived from a set of rules:
 \begin{enumerate}
     \item \textbf{Order of pipeline stages}
     
-    Every instruction goes through the pipeline stages in a fixed order: first it is fetched, then decoded, then executed and only then committed. This creates a following dependencies for a given instruction $I$:
+    Every instruction goes through the pipeline stages in a fixed order: first it is fetched, then decoded, then executed and only then committed. This creates following dependencies for a given instruction $I$:
 
     \begin{itemize}
         \item $(I, \IFr, t_1) \xrightarrow{0} (I, \IDa, t_2)$
@@ -146,14 +146,14 @@ Formally, a TA is observed on a pair of traces $\alpha$ and $\beta$ if there exi
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/multiscalar_ta_causality.png}
-    \caption{Causality-based TA detection applied to Example \ref{ex:simple-ta}. $e_\alpha\downarrow = (A, \FUr, 4), e_\beta\downarrow = (A, \FUr, 6), e_\alpha = (A, COM, 13), e_\beta = (A, COM, 11)$. Purple arrow denotes latency which has a variation between two traces. Gray arrow shows delay between events which is greater in favorable trace. Causality in  path $\alpha$ is marked by red arrows. \TODO{legend on the fig}}
+    \caption{Causality-based TA detection applied to Example \ref{ex:simple-ta}. $e_\alpha\downarrow = (A, \FUr, 4), e_\beta\downarrow = (A, \FUr, 6), e_\alpha = (A, COM, 13), e_\beta = (A, COM, 11)$. Purple arrow denotes latency which has a variation between two traces. Light red arrow shows delay between events which is greater in favorable trace. Causality in path $\alpha$ is marked by dark red arrows.}
     \label{fig:multiscalar-ta-causality}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/ETDG.png}
-    \caption{Complete ETDG for trace $\alpha$ from Figure \ref{fig:multiscalar-ta-causality}, trace $\alpha$. \TODO{image source}}
+    \caption{Complete ETDG for trace $\alpha$ from Figure \ref{fig:multiscalar-ta-causality}, trace $\alpha$ (from \cite{CAOTIC-report}).}
     \label{fig:ETDG}
 \end{figure}
 

@@ -6,3 +6,5 @@
 {"rule":"EN_WORD_COHERENCY","sentence":"^\\QAll together, those parts allow to analyze the longest path of a given program which results in a WCET-bound.\\E$"}
 {"rule":"EN_WORD_COHERENCY","sentence":"^\\QTo systematically investigate timing anomalies induced by branch predictors, it is essential to efficiently generate and analyze relevant examples.\\E$"}
 {"rule":"EN_WORD_COHERENCY","sentence":"^\\QWith such a tool, we can iteratively generate candidate scenarios, analyze their behavior, and assess the applicability of Binder et al.'s definition to these new cases.\\E$"}
+{"rule":"A_INFINITIVE","sentence":"^\\QIf the write occurs before the read, the earlier instruction may read an incorrect value.\\E$"}
+{"rule":"AFFORD_VBG","sentence":"^\\QFor example, in the previous case, it is not clear if the chosen partitioning is valid, since functional units like \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q are controlled by the processor's instruction scheduling and thus are not fully independent.\\E$"}
