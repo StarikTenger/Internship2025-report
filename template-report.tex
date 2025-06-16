@@ -104,8 +104,8 @@
 \newcommand{\optionB} {}
 
 \usepackage{xcolor}
-% \newcommand{\TODO}[1]{\colorbox{red!30}{TODO: \textbf{#1}}}
-\newcommand{\TODO}[1]{}
+\newcommand{\TODO}[1]{\colorbox{red!30}{TODO: \textbf{#1}}}
+% \newcommand{\TODO}[1]{}
 
 \usepackage[most]{tcolorbox}
 \newcounter{example}
@@ -162,7 +162,7 @@ Specialization \optionB  \end{center}\vfill}
 % =======================End of title page formatting
 
 \option{Parallel Computing and Distributed Systems} 
-\title{Exploration by model-checking of timing anomaly cancellation in a processor} %\\\vspace{-1ex}\rule{10ex}{0.5pt} \\sub-title} 
+\title{Timing Anomaly through Branch Prediction} %\\\vspace{-1ex}\rule{10ex}{0.5pt} \\sub-title} 
 \author{Andrei Ilin}
 \date{Defense Date, 2025} % Delete this line to display the current date
 \jury{
@@ -171,10 +171,10 @@ Under the supervision of:\\
 Lionel Rieg\\\medskip
 Florian Brandner\\\medskip
 Mihail Asavoae\\\medskip
-Defended before a jury composed of:\\
-Head of the jury\\
-Jury member 1\\
-Jury member 2\\
+% Defended before a jury composed of:\\
+% Head of the jury\\
+% Jury member 1\\
+% Jury member 2\\
 }
 \session{June \hfill 2025}
 \setcounter{tocdepth}{4}
@@ -194,20 +194,21 @@ Jury member 2\\
 \renewcommand{\abstracttextfont}{\normalfont}
 \abstractintoc
 \begin{abstract} 
-Your abstract goes here... 
+In this report, we consider counter-intuitive timing anomalies (TAs) due to branch prediction in out-of-order (OoO) processor pipelines. A TA is a phenomenon when a local speedup in instruction execution leads to a global slowdown. We overview the existing TAs definitions and evaluate the applicability of the most promising one to branch prediction, using a novel ad-hoc model checking tool. Finally, we show that although the chosen definition adequately capture some TAs caused by branch prediction, its definition of causality cannot always capture the proper causality connections. This suggests that finding consistent TA definition encompassing branch prediction is still an open problem.
+
 \end{abstract}
 \abstractintoc
 
-\renewcommand\abstractname{Acknowledgement}
-\begin{abstract}
-I would like to express my sincere gratitude to .. for his invaluable assistance and comments in reviewing this report... 
-Good luck :) 
-\end{abstract}
+% \renewcommand\abstractname{Acknowledgement}
+% \begin{abstract}
+% I would like to express my sincere gratitude to .. for his invaluable assistance and comments in reviewing this report... 
+% Good luck :) 
+% \end{abstract}
 
 
 \renewcommand\abstractname{R\'esum\'e}
 \begin{abstract} \selectlanguage{French}
-Your abstract in French goes here... 
+Dans ce rapport, nous \'etudions les anomalies temporelles contre-intuitives dues \`a la pr\'ediction de branchement dans les pipelines de processeurs \`a ex\'ecution dans le d\'esordre. Une TA est un ph\'enom\`ene o\`u une acc\'el\'eration locale de l'ex\'ecution d'une instruction conduit \`a un ralentissement global de l'ex\'ecution. Nous passons en revue les d\'efinitions existantes des TAs et \'evaluons l'applicabilit\'e de la plus prometteuse \`a la pr\'ediction de branchement, en utilisant un nouvel outil de model checking ad hoc. Enfin, nous montrons que, bien que la d\'efinition choisie capture correctement certaines TAs caus\'ees par la pr\'ediction de branchement, sa d\'efinition de la causalit\'e ne permet pas toujours de bien saisir les bons liens de causalit\'e. Cela sugg\`ere que concevoir une d\'efinition coh\'erente des TAs englobant la pr\'ediction de branchement reste un probl\`eme ouvert.
 \end{abstract}
 \selectlanguage{English}
 
@@ -233,7 +234,7 @@ Your abstract in French goes here...
 \bibliographystyle{plain} % plain-fr si rapport en français 
 \bibliography{bibfile.bib}
 
-\include{./chapters/7_Appendix}
+% \include{./chapters/7_Appendix}
 
 %\cleardoublepage % Goes to an odd page
 %\pagestyle{empty} % no page number

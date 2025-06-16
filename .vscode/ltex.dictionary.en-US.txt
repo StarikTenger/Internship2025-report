@@ -20,3 +20,4 @@ superscalar-degree
 WCET-bound
 WCET
 analyze
+Superscalar
