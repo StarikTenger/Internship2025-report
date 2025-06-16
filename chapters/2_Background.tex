@@ -78,12 +78,12 @@ Superscalar execution allows the processor to fetch and execute multiple instruc
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/multiscalar-execution.png}
-    \caption{Degree 2 superscalar pipeline: each pipeline stage can process up to two instructions per cycle, provided the instructions are independent.}
+    \caption{Degree 2 superscalar pipeline: each pipeline stage can process up to two instructions per cycle, provided the instructions are independent (from \cite{perais_increasing_2016}).}
     \label{fig:superscalar}
 \end{figure}
 
 \subsection{Out-of-Order (OoO) Pipeline}
-Out-of-Order (OoO) execution enables instructions to be processed based on data dependencies rather than strictly adhering to program order. While the architectural state (as defined by the ISA) must be updated in program order to preserve correctness, many instructions are independent and can be executed as soon as their operands are available. This parallelism improves resource utilization and overall throughput.
+Out-of-Order (OoO) execution enables instructions to be processed based on data dependencies rather than strictly following to program order. While the architectural state (as defined by the ISA) must be updated in program order to preserve correctness, many instructions are independent and can be executed as soon as their operands are available. This parallelism improves resource utilization and overall throughput.
 
 To support OoO execution while maintaining a consistent ISA-visible state, the processor pipeline is logically divided into in-order and out-of-order regions. The in-order region typically includes the instruction fetch (IF), decode (ID), and commit (COM) stages, while the out-of-order region encompasses execution (EX) and memory (MEM) access stages. Instructions are fetched and decoded in program order, but may be executed and completed out of order, provided their dependencies are satisfied. Final commitment to the architectural state occurs in order, ensuring correctness.
 
@@ -110,7 +110,7 @@ In the processor pipeline, the Instruction Fetch (IF) stage is responsible for r
 
 To improve efficiency, modern processors employ branch prediction mechanisms to guess the likely outcome of a branch and speculatively fetch the corresponding instruction. These speculatively executed instructions are not committed to the architectural state until the branch decision is confirmed. If the prediction is incorrect, the speculative instructions are flushed from the pipeline (this is also called \textit{squashing}), and execution resumes from the correct path.
 
-Branch prediction is by far one of the most efficient optimizations in modern processors. By accurately predicting the outcome of branches, processors can keep their pipelines filled and minimize the number of stalls caused by control hazards. This leads to significant improvements in instruction throughput and overall performance, especially in workloads with frequent branching. The effectiveness of branch prediction is a key factor in the performance of superscalar and deeply pipelined architectures. In the following sections we overview some well-known types of branch predictors.
+Branch prediction is by far one of the most efficient optimizations in modern processors. By accurately predicting the outcome of branches, processors can keep their pipelines filled and minimize the number of stalls caused by control hazards. This leads to significant improvements in instruction throughput and overall performance, especially in workloads with frequent branching. The effectiveness of branch prediction is a key factor in the performance of superscalar and deeply pipelined architectures. Further, in the text we overview some well-known types of branch predictors.
 
 \subsection{Static Branch Predictors}
 
@@ -184,7 +184,9 @@ Both the global and local two-level adaptive predictors have their strengths: gl
     \label{fig:bp-gshare}
 \end{figure}
 
-% \subsection{Effect on Timing Analysis}
+\subsection{Effect on Timing Analysis}
+
+In this section, we have presented the concept of branch prediction and surveyed several representative strategies. As branch predictors become increasingly sophisticated, their complexity poses significant challenges for worst-case execution time (WCET) analysis. Regardless of the PHT indexing scheme employed, collisions -- where multiple independent branches or patterns map to the same PHT entry -- remain a concern. While advanced prediction techniques can reduce the frequency of such collisions, they also complicate the analysis process. Furthermore, these aliasing effects can introduce timing anomalies, further impacting the predictability of modern processors.
 
 % As it is shown, there is a broad variety branch predictors. We have discussed only a few of them 
 
