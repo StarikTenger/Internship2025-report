@@ -164,13 +164,15 @@ In more advanced predictors the emphasis is on BHT-indexing. Two-bit predictor i
     \label{fig:bp-two-level}
 \end{figure}
 
-The drawback of using the predictor we described is the use of a global history. For some branches the outcome is not related to the others, so an alternative version of adaptive predictor uses a \textit{per-address branch history table (PBHT)} which stores multiple entries of history register which are indexed by the lower bitts of branch address (Figure \ref{fig:bp-two-level-local}).
-
 \begin{figure}
     \includegraphics[width=\textwidth]{figures/bp-two-level-local.png}
     \caption{Two-Level Adaptive Training Predictor using a per-address BHR to index the PHT (from \cite{mahling_reverse_2023})}
     \label{fig:bp-two-level-local}
 \end{figure}
+
+The drawback of using the predictor we described is the use of a global history. For some branches the outcome is not related to the others, so an alternative version of adaptive predictor uses a \textit{per-address branch history table (PBHT)} which stores multiple entries of history register which are indexed by the lower bitts of branch address (Figure \ref{fig:bp-two-level-local}).
+
+
 
 \subsubsection{Global Share Predictor}
 
@@ -182,8 +184,8 @@ Both the global and local two-level adaptive predictors have their strengths: gl
     \label{fig:bp-gshare}
 \end{figure}
 
-\subsection{Effect on Timing Analysis}
+% \subsection{Effect on Timing Analysis}
 
-As it is shown, there is a broad variety branch predictors. We have discussed only a few of them 
+% As it is shown, there is a broad variety branch predictors. We have discussed only a few of them 
 
-\TODO{!!!}
+% \TODO{!!!}
