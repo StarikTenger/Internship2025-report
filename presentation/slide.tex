@@ -1,0 +1,69 @@
+\documentclass{beamer}
+% \usepackage{ctex, hyperref}
+% \usepackage[T1]{fontenc}
+
+% other packages
+\usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
+\usepackage{graphicx,pstricks,listings,stackengine}
+
+\author{Andrei Ilin}
+\title{Timing Anomaly through Branch Prediction}
+% \subtitle{Cospa group meeting}
+\subtitle{Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
+\institute{Université Grenoble Alpes}
+\date{23 June 2025}
+\usepackage{USTC_beamer}
+
+% \renewcommand{\familydefault}{\rmdefault}
+
+% defs
+\def\cmd#1{\texttt{\color{red}\footnotesize $\backslash$#1}}
+\def\env#1{\texttt{\color{blue}\footnotesize #1}}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{halfgray}{gray}{0.55}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\bfseries\color{deepblue},
+    emphstyle=\ttfamily\color{deepred},  
+    stringstyle=\color{deepgreen},
+    numbers=left,
+    numberstyle=\small\color{halfgray},
+    rulesepcolor=\color{red!20!green!20!blue!20},
+    frame=shadowbox,
+}
+
+
+\begin{document}
+
+% \kaishu
+\renewcommand{\figurename}{Fig.}
+
+% logo
+\begin{frame}
+    \titlepage
+    \begin{figure}[htpb]
+        \begin{center}
+            \includegraphics[width=0.2\linewidth]{pic/logo-verimag.png}
+            \includegraphics[width=0.2\linewidth]{pic/logo-uga.png}
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+\end{frame}
+
+\section{Introduction}
+
+\section{Hardware}
+
+\section{Timing Anomalies}
+
+\section{Contribution}
+
+\section{Conclusion}
+
+\end{document}
