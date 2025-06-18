@@ -80,10 +80,11 @@
     \hfill \break
     \hfill \break
 
-    Critical Real-Time Systems are expected to finish on time, otherwise the disaster could happen. This often requires special hardware and software that can be analyzed for timing properties.
+    Strict timing requirements for the programs.
     
 \end{frame}
 
+% Ex: break respond time...
 
 \begin{frame}{WCET Analysis}
     \begin{columns}
@@ -98,7 +99,7 @@
 
 
     \begin{block}{}
-        Using abstract execution models. Split analysis into phases related to SW and HW parts.
+        Analysis is slit in multiple stages and uses simplifications.
     \end{block}
 
     \column{0.6\textwidth}
@@ -109,6 +110,12 @@
 
     \end{columns}
 \end{frame}
+
+% Animate distribution?
+% Say: overestimation, simplification 
+% Full system too complicated -> split anal. -> ASS.: sys are composable
+% Not all are composable, thus TA
+
 
 \begin{frame}{Timing Anomalies}
     \begin{block}{Timing Anomaly (TA)}
@@ -125,9 +132,10 @@
     \column{0.6\textwidth}
         \includegraphics[width=1\textwidth]{pic/first-TA-ex-trace.png}
     \end{columns}
-    
 \end{frame}
-    
+
+% 
+
 \section{Hardware}
 
 \begin{frame}{OoO Multiscalar Pipeline}
@@ -148,14 +156,26 @@
 
 \end{frame}
 
+% \TODO: Image: Shade OoO, bigger text
+% Explain ROB: keep track of dependencies, each instr = 1 entery in ROB, when enters
+% No TA: just one trace: some arrows clarif.
+
+
 \begin{frame}{Branch Prediction}
+    
     \begin{itemize}
         \item Branch target unknown until resolved.
         \item Predict next address and execute speculatively.
         \item On misprediction: jump to correct address.
     \end{itemize}
-    \includegraphics[width=\textwidth]{pic/bp-demo.png}
+
+    
+    \includegraphics[width=0.9\textwidth]{pic/bp-demo.png}
+
 \end{frame}
+
+% \TODO Show first without BP: we have to wait; Animation
+
 
 \begin{frame}{Branch Prediction: possible implementations}
     \begin{columns}
@@ -188,8 +208,12 @@
     \end{columns}
 
     \includegraphics[width=0.9\textwidth]{pic/two-bit-counter.png}
-
 \end{frame}
+
+% Not structured well
+% 2-bit coutner = 2 incorrect predictions to change
+% PHT - remember past branch
+% BTB - too remember the target
 
 \section{Timing Anomalies}
 
@@ -207,6 +231,8 @@
     \end{block}
 \end{frame}
 
+% Key ideas of defs?
+
 \begin{frame}{Step Heights by Gebhard et al.}
     \begin{block}{Definition}
         TA = one instruction executes faster, the instruction after -- slower
@@ -218,6 +244,10 @@
         \includegraphics[width=0.8\textwidth]{pic/step-height-bad.png}
     \end{alertblock}
 \end{frame}
+% Be simpler: arrow in diff. directions
+% Counterexamples: 2 lines cross, but no TA!
+% Swap coutnerexamples !!!
+
 
 \begin{frame}{Step Function Intersections by Gebhard et al.}
     \begin{block}{Definition}
@@ -240,35 +270,38 @@
         \end{alertblock}
     }   
 \end{frame}
+% Idea of rotating the exec. pattern
+% Counterexample: step function
+% Is example correct?
 
 \begin{frame}{Event Time Dependency Graph by Binder et al.}
     \begin{block}{3 Components}
         \only<1> {
             \begin{enumerate}
-                \item Latency
-                \item Delay
+                \item Variation
+                \item Slowdown
                 \item Causality
             \end{enumerate}
         }
         \only<2> {
             \begin{enumerate}
-                \item \textbf{Latency}
-                \item Delay
+                \item \textbf{Variation} in latency
+                \item Slowdown
                 \item Causality
             \end{enumerate}
         }
         \only<3> {
             \begin{enumerate}
-                \item Latency
-                \item \textbf{Delay}
+                \item Variation in latency
+                \item \textbf{Slowdown} in delay end of variation $\rightarrow$ later event
                 \item Causality
             \end{enumerate}
         }
         \only<4> {
             \begin{enumerate}
-                \item Latency
-                \item Delay
-                \item \textbf{Causality}
+                \item Variation in latency
+                \item Slowdown  in delay end of (variation $\rightarrow$ later event)
+                \item \textbf{Causality} link = event $X$ cannot be earlier because of $Y$
             \end{enumerate}
         }
     \end{block}
@@ -279,45 +312,58 @@
     \includegraphics<4>[scale=0.17]{pic/binder-def-4.png}
 \end{frame}
 
+% Causality - why do we need it? In counterex no relation between source and TA
+% Causality only in one trace
+
 \begin{frame}
     \begin{block}{Goal}
         Develop a consistent TA definition applicable for branch prediction.
     \end{block}
+
+    \begin{itemize}
+        \item Do timing anomalies caused by branch predictor exist?
+        \item Can we extend the existing Binder's definition?
+        \item Do we cover all the aspects of branch prediction?
+    \end{itemize}
+
 \end{frame}
+% + subquestions
+% can we extend causality-based def?
+% how to do that?
 
 \section{Contribution}
 
 \begin{frame}{Research Plan}
-    \begin{itemize}
-        \item \textbf{Goal:} Systematically investigate TAs induced by branch predictors.
-        \item Manual construction of examples is inefficient and error-prone.
-        \item \textbf{Approach:} Develop a tool to automatically or semi-automatically generate and validate relevant examples.
-        \item Use the tool to:
-        \begin{itemize}
-            \item Iteratively generate candidate scenarios.
-            \item Analyze behavior and assess applicability of Binder et al.'s definition.
-            \item Refine the definition based on empirical evidence.
-        \end{itemize}
-        \item \textbf{Initial step:} Studied and extended Binder et al.'s TLA$+$ framework for branch behavior.
-        \item \textbf{Challenge:} TLA+ model had performance and flexibility limitations.
-        \item \textbf{Solution:} New the framework in C++.
-    \end{itemize}
+    \begin{enumerate}
+        \item Create the tool for automatic example generation.
+        \item Generate some candidate scenarios.
+        \item Try to adapt definition on them.
+        \item Verify definition on new scenarios.
+    \end{enumerate}
 \end{frame}
+% Too long. Make it more visual
+% TLA problems, C++ problems, compare
 
 \begin{frame}{Ad-hoc C++ Model Checker}
+    \begin{alertblock}{TLA+ implementation}
+        TlA+ implementation by Bidner is slow. 2-3 seconds to generate a single example from input.
+    \end{alertblock}
+
     \begin{itemize}
         \item Written in C++.
         \item Simple and flexible input format.
         \item Supports speculative execution.
-        \item Faster than TLA$+$ implementation (milliseconds instead of seconds).
+        \item Faster than TLA$+$ implementation (ms instead of seconds).
         \item 3 operation modes:
         \begin{enumerate}
             \item Interactive manual mode.
-            \item State space exploration.
             \item Randomized search.
+            \item State space exploration.
         \end{enumerate}
+        \item Lacks formal gurantees, so verify it with TLA+
     \end{itemize}
 \end{frame}
+% merge with previous slide
 
 \begin{frame}{Input Format}
 
@@ -325,6 +371,10 @@
     \item Each branch instruction is followed by \textbf{misprediction region} -- sequence of instruction representing the wrong branch.
     \item A pair of traces is generated from a single input.
 \end{itemize}
+% How the input format is new
+% Meaning of indentation
+% Explain squash on diagram, what diagram mean
+% Write: some instr. disappera, so harder to compare
 
 \begin{columns}
     \column{0.4\textwidth}
@@ -342,6 +392,7 @@
 \end{columns}
 
 \end{frame}
+% \TODO add mispred notation
 
 \begin{frame}{Branch TA}
     Correct prediction leads to a longer execution time.
@@ -354,19 +405,15 @@
 
     Binder's causality rules are applicable.
 \end{frame}
+% Question: can we fit Binder's def?
+% ...and this is the answer
+% Why latency
+% TODO: animation
 
-
-\begin{frame}{Early FU Release}
-    How to define causality if execution in FU is aborted by squashing?
-
-    \begin{block}{Assumption 1}
-        If FU is released as the result of squashing, the FU release of corresponding branch is causal to FU release of the squashed instruction.
-    \end{block}
-
-    \begin{block}{Assumption 2}
-        The FU acquisition is always causal to the respective FU release.
-    \end{block}
-\end{frame}
+% Viusal example
+% Names for assumtions!
+% Restructure: introduce assumption with examples
+% Put the input format!
 
 \begin{frame}{Early FU Release}
     \begin{itemize}
@@ -376,17 +423,44 @@
     \includegraphics[width=0.9\textwidth]{pic/nested-bp-ta.png}
 \end{frame}
 
+
 \begin{frame}{Early FU Release}
-    \begin{itemize}
-        \item \textbf{Assumption 1} holds.
-        \item \textbf{Assumption 2} does not hold.
-    \end{itemize}
-    \includegraphics[width=\textwidth]{pic/lat-mispred.png}
+    \includegraphics<1>[scale=0.17]{pic/nested-bp-ta-1.png}
+    \includegraphics<2>[scale=0.17]{pic/nested-bp-ta-2.png}
+    \includegraphics<3>[scale=0.17]{pic/nested-bp-ta-3.png}
+    \includegraphics<4>[scale=0.17]{pic/nested-bp-ta-4.png}
+    \includegraphics<5>[scale=0.17]{pic/nested-bp-ta-5.png}
+    \includegraphics<6>[scale=0.17]{pic/nested-bp-ta-6.png}
+\end{frame}
+% make it bigger
+
+\begin{frame}{Early FU Release}
+    \includegraphics<1>[scale=0.11]{pic/lat-mispred-1.png}
+    \includegraphics<2>[scale=0.11]{pic/lat-mispred-2.png}
+    \includegraphics<3>[scale=0.11]{pic/lat-mispred-3.png}
+    \includegraphics<4>[scale=0.11]{pic/lat-mispred-4.png}
+\end{frame}
+% trace shorter
+
+\begin{frame}
+    Assumptions contradict each other!
 \end{frame}
 
-\begin{frame}{Gap Problem}
-    \includegraphics[width=0.9\textwidth]{pic/gap-problem.png}
+\begin{frame}{Results}
+    \begin{itemize}
+        \item The definition of Binder et al. can be applied in branch prediction context with minimal adjustments.
+        \item Sometimes it is not evident which rule to use.
+    \end{itemize}
 \end{frame}
+
+% Say that we have a bigger problem
+
+\begin{frame}{Gap Problem}
+    \includegraphics<1>[scale=0.17]{pic/gap-problem-1.png}
+    \includegraphics<2>[scale=0.17]{pic/gap-problem-2.png}
+    \includegraphics<3>[scale=0.17]{pic/gap-problem-3.png}
+\end{frame}
+% Make an animation
 
 \begin{frame}{Results}
     \begin{itemize}
@@ -397,6 +471,7 @@
     \end{itemize}
 \end{frame}
 
+% Results about assumptions -> to assumptions
 
 
 \section{Conclusion}
@@ -410,5 +485,7 @@
         \item Future work: study the impact of branch predictor state.
     \end{itemize}
 \end{frame}
+% Add structure: results, future work
+
 
 \end{document}
