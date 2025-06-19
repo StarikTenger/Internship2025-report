@@ -2,10 +2,19 @@
 \usetheme{Copenhagen}
 \usepackage{hyperref}
 \usepackage[T1]{fontenc}
+% \usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{pifont}
 
 % other packages
 \usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
 \usepackage{graphicx,pstricks,listings,stackengine}
+
+% Define custom symbols
+\newcommand{\cmark}{\textcolor{green!70!black}{\ding{51}}} % green tick
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}}            % red cross
+
+
 
 \author{Andrei Ilin}
 \title{Timing Anomaly through Branch Prediction}
@@ -39,6 +48,9 @@
 
 \begin{document}
 
+% Define custom item styles
+
+
 % \kaishu
 \renewcommand{\figurename}{Fig.}
 
@@ -53,6 +65,7 @@
         \end{center}
     \end{figure}
 \end{frame}
+% \TODO fix title
 
 \begin{frame}
     \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
@@ -81,6 +94,10 @@
     \hfill \break
 
     Strict timing requirements for the programs.
+
+    \begin{exampleblock}{Example}
+        Car break system that must respond in 5 ms.
+    \end{exampleblock}
     
 \end{frame}
 
@@ -93,13 +110,13 @@
 
     \textbf{W}orst \textbf{C}ase \textbf{E}xecution \textbf{T}ime Analysis:
     \begin{itemize}
-        \item Hardware + Software $\downarrow$
+        \item Hardware + Software
         \item Upper bound for execution time?
     \end{itemize}
 
 
     \begin{block}{}
-        Analysis is slit in multiple stages and uses simplifications.
+        Analysis is split into multiple stages and uses simplifications.
     \end{block}
 
     \column{0.6\textwidth}
@@ -142,21 +159,23 @@
     Processor:
     \begin{itemize}
         \item \textbf{Pipelined:} Divided into consecutive stages
-        \item \textbf{Multiscalar:} Fetch multiple instruction in the same time
-        \item \textbf{Out-of-Order:} Execution order dictated by instruction dependencies
+        \item \textbf{Superscalar:} Fetch multiple instruction in the same time
+        \item \textbf{Out-of-Order:} Execution order dictated by scheduling policy
     \end{itemize}
 
 
     \begin{columns}
     \column{0.5\textwidth}
-        \includegraphics[width=\textwidth]{pic/ooo-pipeline.png}
+        \includegraphics[width=\textwidth]{pic/pipeline.png}
     \column{0.5\textwidth}
-        \includegraphics[width=\textwidth]{pic/multiscalar_ta.png}
+        \includegraphics<1>[scale=0.14]{pic/multiscalar-demo-1.png}
+        \includegraphics<2>[scale=0.14]{pic/multiscalar-demo-2.png}
+        \includegraphics<3>[scale=0.14]{pic/multiscalar-demo-3.png}
+        \includegraphics<4>[scale=0.14]{pic/multiscalar-demo-4.png}
     \end{columns}
 
 \end{frame}
 
-% \TODO: Image: Shade OoO, bigger text
 % Explain ROB: keep track of dependencies, each instr = 1 entery in ROB, when enters
 % No TA: just one trace: some arrows clarif.
 
@@ -164,13 +183,15 @@
 \begin{frame}{Branch Prediction}
     
     \begin{itemize}
-        \item Branch target unknown until resolved.
-        \item Predict next address and execute speculatively.
-        \item On misprediction: jump to correct address.
+        \item<1-3> Branch target unknown until branch is resolved.
+        \item<2-3> Predict next address and execute speculatively.
+        \item<3> Misprediction detected $\rightarrow$ start fetching the correct branch
     \end{itemize}
 
     
-    \includegraphics[width=0.9\textwidth]{pic/bp-demo.png}
+    \includegraphics<1>[scale=0.17]{pic/bp-demo-no.png}
+    \includegraphics<2>[scale=0.17]{pic/bp-demo-correct.png}
+    \includegraphics<3>[scale=0.17]{pic/bp-demo-incorrect.png}
 
 \end{frame}
 
@@ -220,28 +241,43 @@
 \begin{frame}{Formal Definition?}
     \textbf{How do we formally define a TA?}
 
-    \begin{block}{Some existing definitions}
+    \only<1>{
+        \begin{block}{Many existing definitions}
         \begin{itemize}
-            \item Step Heights (by Gebhard et al.)
-            \item Step-functions Intersections (by Cassez et al.)
-            \item Component Occupation (by Kirner et al.)
-            \item Instruction Locality (by Reineke et al.)
-            \item Event Time Dependency Graph (by Binder et al.)
-        \end{itemize}
-    \end{block}
+                \item Step Heights (by Gebhard et al.)
+                \item Step-functions Intersections (by Cassez et al.)
+                \item Component Occupation (by Kirner et al.)
+                \item Instruction Locality (by Reineke et al.)
+                \item Event Time Dependency Graph (by Binder et al.)
+            \end{itemize}
+        \end{block}
+    }
+
+    \only<2>{
+        \begin{block}{Many existing definitions}
+        \begin{itemize}
+                \item \textbf{Step Heights (by Gebhard et al.)}
+                \item \textbf{Step-functions Intersections (by Cassez et al.)}
+                \item Component Occupation (by Kirner et al.)
+                \item Instruction Locality (by Reineke et al.)
+                \item \textbf{Event Time Dependency Graph (by Binder et al.)}
+            \end{itemize}
+        \end{block}
+    }
+    
 \end{frame}
 
 % Key ideas of defs?
 
 \begin{frame}{Step Heights by Gebhard et al.}
     \begin{block}{Definition}
-        TA = one instruction executes faster, the instruction after -- slower
+        TA = instruction latency (compared to previous instr.) smaller, global time greater
     \end{block}
 
     \includegraphics<1>[width=\textwidth]{pic/step-height-good.png}
 
     \begin{alertblock}<2>{Counterexample!}
-        \includegraphics[width=0.8\textwidth]{pic/step-height-bad.png}
+        \includegraphics[width=0.7\textwidth]{pic/step-height-bad.png}
     \end{alertblock}
 \end{frame}
 % Be simpler: arrow in diff. directions
@@ -249,18 +285,17 @@
 % Swap coutnerexamples !!!
 
 
-\begin{frame}{Step Function Intersections by Gebhard et al.}
+\begin{frame}{Step Function Intersections by Cassez et al.}
     \begin{block}{Definition}
-        Step Function = instruction $\rightarrow$ its completion time
-        TA = intersection of step functions of 2 traces
+        TA = one instruction finishes earlier than in alternative trace, the other later than in alternative trace
     \end{block}
 
     \only<1>{
         \begin{columns}
-        \column{0.6\textwidth}
+        \column{0.8\textwidth}
             \includegraphics[width=\textwidth]{pic/step-height-good.png}
-        \column{0.4\textwidth}
-            \includegraphics[width=\textwidth]{pic/step-functions.png}
+        % \column{0.4\textwidth}
+        %     \includegraphics[width=\textwidth]{pic/step-functions.png}
     \end{columns}
     }
     
@@ -271,7 +306,7 @@
     }   
 \end{frame}
 % Idea of rotating the exec. pattern
-% Counterexample: step function
+% Counterexample: step function !!
 % Is example correct?
 
 \begin{frame}{Event Time Dependency Graph by Binder et al.}
@@ -321,9 +356,9 @@
     \end{block}
 
     \begin{itemize}
-        \item Do timing anomalies caused by branch predictor exist?
-        \item Can we extend the existing Binder's definition?
-        \item Do we cover all the aspects of branch prediction?
+        \item \textbf{Question 1} Can timing anomaly be caused by branch prediction?
+        \item \textbf{Question 2} Can we extend the existing Binder's definition?
+        \item \textbf{Question 3} Do we cover all the aspects of branch prediction?
     \end{itemize}
 
 \end{frame}
@@ -335,35 +370,68 @@
 
 \begin{frame}{Research Plan}
     \begin{enumerate}
-        \item Create the tool for automatic example generation.
+        \item Create a tool for automatic example generation.
         \item Generate some candidate scenarios.
         \item Try to adapt definition on them.
-        \item Verify definition on new scenarios.
+        \item Find new scenarios to verify the definition.
     \end{enumerate}
 \end{frame}
 % Too long. Make it more visual
 % TLA problems, C++ problems, compare
 
-\begin{frame}{Ad-hoc C++ Model Checker}
-    \begin{alertblock}{TLA+ implementation}
-        TlA+ implementation by Bidner is slow. 2-3 seconds to generate a single example from input.
-    \end{alertblock}
+\begin{frame}{Tool Implementation}
+    % \begin{alertblock}{TLA+ implementation}
+    %     Is slow. 2-3 seconds to generate a single example.
+    % \end{alertblock}
 
-    \begin{itemize}
-        \item Written in C++.
-        \item Simple and flexible input format.
-        \item Supports speculative execution.
-        \item Faster than TLA$+$ implementation (ms instead of seconds).
-        \item 3 operation modes:
-        \begin{enumerate}
-            \item Interactive manual mode.
-            \item Randomized search.
-            \item State space exploration.
-        \end{enumerate}
-        \item Lacks formal gurantees, so verify it with TLA+
-    \end{itemize}
+    % \begin{itemize}
+    %     \item Written in C++.
+    %     \item Simple and flexible input format.
+    %     \item Supports speculative execution.
+    %     \item Faster than TLA$+$ implementation (ms instead of seconds).
+    %     \item 3 operation modes:
+    %     \begin{enumerate}
+    %         \item Interactive manual mode.
+    %         \item Randomized search.
+    %         \item State space exploration.
+    %     \end{enumerate}
+    %     \item Lacks formal gurantees
+    % \end{itemize}
+
+    
+
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{exampleblock}{Existing TLA$^+$ framework}
+
+            \begin{itemize}
+                \item[\xmark] Slow: 2-3 seconds for single example
+                \item[\xmark] No branch and speculation support
+                \item[\xmark] Lengthy input format 
+                \item[\cmark] Formal guarantees
+            \end{itemize}
+
+            
+        \end{exampleblock}
+
+        \column{0.5\textwidth}
+        \pause
+        \begin{exampleblock}{Our C++ framework}
+            \begin{itemize}
+                \item[\cmark] Fast: a few ms per example
+                \item[ ]
+                \item[\cmark] Traces with speculation
+                \item[ ] 
+                \item[\cmark] Refined consize input format
+                \item[\xmark] Harder to specify properties
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+
 \end{frame}
-% merge with previous slide
+% Better to do a comparison: 2 columns, pros and cons
+% We starte by doing TLA+ implem., but then...
+% Animation
 
 \begin{frame}{Input Format}
 
@@ -415,13 +483,13 @@
 % Restructure: introduce assumption with examples
 % Put the input format!
 
-\begin{frame}{Early FU Release}
-    \begin{itemize}
-        \item \textbf{Assumption 1} does not hold.
-        \item \textbf{Assumption 2} holds.
-    \end{itemize}
-    \includegraphics[width=0.9\textwidth]{pic/nested-bp-ta.png}
-\end{frame}
+% \begin{frame}{Early FU Release}
+%     \begin{itemize}
+%         \item \textbf{Assumption 1} does not hold.
+%         \item \textbf{Assumption 2} holds.
+%     \end{itemize}
+%     \includegraphics[width=0.9\textwidth]{pic/nested-bp-ta.png}
+% \end{frame}
 
 
 \begin{frame}{Early FU Release}
@@ -462,14 +530,14 @@
 \end{frame}
 % Make an animation
 
-\begin{frame}{Results}
-    \begin{itemize}
-        \item The definition of Binder et al. can be applied in branch prediction context with minimal adjustments.
-        \item Sometimes it is not evident which rule to use.
-        \item Initial definition suffers from a gap problem.
-        \item Likely, the problem is with causality itself.
-    \end{itemize}
-\end{frame}
+% \begin{frame}{Results}
+%     \begin{itemize}
+%         \item The definition of Binder et al. can be applied in branch prediction context with minimal adjustments.
+%         \item Sometimes it is not evident which rule to use.
+%         \item Initial definition suffers from a gap problem.
+%         \item Likely, the problem is with causality itself.
+%     \end{itemize}
+% \end{frame}
 
 % Results about assumptions -> to assumptions
 
