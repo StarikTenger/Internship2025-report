@@ -217,12 +217,12 @@ The second timing anomaly, illustrated in Figures \ref{fig:bp-ta-inputs-1} and \
         \centering
         \begin{tabular}{rr|ccc}
             &  & Res. & Dep. & Lat. \\ \hline
-            \textit{A:} &  & FU1 &  & $4$ \\
-            \textit{B:} &  & FU2 & $\{A\}$ & $4$ \\
-            \textit{*C:} &  & \textbf{FU2} &  & $1$ \\
-            & \textit{D:} & FU1 &  & $4$ \\
-            & \textit{E:} & FU1 &  & $4$ \\
-            \textit{H:} &  & FU2 &  & $4$ \\
+            \textit{A} &  & FU1 &  & $4$ \\
+            \textit{B} &  & FU2 & $\{A\}$ & $4$ \\
+            \textit{*C} &  & \textbf{FU2} &  & $1$ \\
+            & \textit{D} & FU1 &  & $4$ \\
+            & \textit{E} & FU1 &  & $4$ \\
+            \textit{H} &  & FU2 &  & $4$ \\
         \end{tabular}
         \caption{Input from Example \ref{ex:bp-ta}}
         \label{fig:bp-ta-inputs-0}
@@ -233,14 +233,14 @@ The second timing anomaly, illustrated in Figures \ref{fig:bp-ta-inputs-1} and \
         
         \begin{tabular}{rr|ccc}
             &  & Res. & Dep. & Lat. \\ \hline
-            \textit{A:} &  & FU1 &  & $4$ \\
-            \textit{B:} &  & FU2 & $\{A\}$ & $4$ \\
-            \textit{*C:} &  & \textbf{FU1} &  & $1$ \\
-            & \textit{D:} & FU1 &  & $4$ \\
-            & \textit{E:} & FU1 &  & $4$ \\
-            & \textit{F:} & FU1 &  & $4$ \\
-            & \textit{G:} & FU1 &  & $4$ \\
-            \textit{H:} &  & FU2 &  & $4$ \\
+            \textit{A} &  & FU1 &  & $4$ \\
+            \textit{B} &  & FU2 & $\{A\}$ & $4$ \\
+            \textit{*C} &  & \textbf{FU1} &  & $1$ \\
+            & \textit{D} & FU1 &  & $4$ \\
+            & \textit{E} & FU1 &  & $4$ \\
+            & \textit{F} & FU1 &  & $4$ \\
+            & \textit{G} & FU1 &  & $4$ \\
+            \textit{H} &  & FU2 &  & $4$ \\
         \end{tabular}
         \caption{Input from Example \ref{ex:bp-ta-1}}
         \label{fig:bp-ta-inputs-1}
@@ -355,13 +355,13 @@ We consider the instruction trace shown in Figure \ref{fig:nested-bp-ta-input}, 
     \centering
     \begin{tabular}{rrr|ccc}
     &  &  & Res. & Dep. & Lat. \\ \hline
-    \textit{A:} &  &  & FU1 &  & $5$ \\
-    \textit{B:} &  &  & FU2 & $\{A\}$ & $4$ \\
-    \textit{C:} &  &  & FU1 &  & $1$ \\
-    & \textit{*D:} &  & FU2 &  & $1$ \\
-    &  & \textit{E:} & FU2 &  & $4$ \\
-    &  & \textit{F:} & FU2 &  & $4$ \\
-    & \textit{G:} &  & FU2 &  & $4$ \\
+    \textit{A} &  &  & FU1 &  & $5$ \\
+    \textit{B} &  &  & FU2 & $\{A\}$ & $4$ \\
+    \textit{C} &  &  & FU1 &  & $1$ \\
+    & \textit{*D} &  & FU2 &  & $1$ \\
+    &  & \textit{E} & FU2 &  & $4$ \\
+    &  & \textit{F} & FU2 &  & $4$ \\
+    & \textit{G} &  & FU2 &  & $4$ \\
     \end{tabular}
     \caption{Instruction trace from Example \ref{ex:nested-bp-ta}}
     \label{fig:nested-bp-ta-input}
@@ -409,13 +409,13 @@ We consider an instruction trace from Figure \ref{fig:lat-mispred-ta-input}; the
     \centering
     \begin{tabular}{rr|ccc}
     &  & Res. & Dep. & Lat. \\ \hline
-    \textit{A:} &  & FU3 &  & $9$ \\
-    \textit{B:} &  & FU1 &  & $6|7$ \\
-    \textit{C:} &  & FU2 & $\{A, B\}$ & $4$ \\
-    \textit{D:} &  & FU1 & $\{C\}$ & $4$ \\
-    \textit{E:} &  & FU2 & $\{B\}$ & $4$ \\
-    \textit{F:} &  & FU1 &  & $1$ \\
-    & \textit{G:} & FU2 &  & $4$ \\
+    \textit{A} &  & FU3 &  & $9$ \\
+    \textit{B} &  & FU1 &  & $6|7$ \\
+    \textit{C} &  & FU2 & $\{A, B\}$ & $4$ \\
+    \textit{D} &  & FU1 & $\{C\}$ & $4$ \\
+    \textit{E} &  & FU2 & $\{B\}$ & $4$ \\
+    \textit{F} &  & FU1 &  & $1$ \\
+    & \textit{G} & FU2 &  & $4$ \\
     \end{tabular}
     \caption{Instruction trace of Example \ref{ex:lat-mispred-ta}}
     \label{fig:lat-mispred-ta-input}
@@ -447,16 +447,16 @@ We modify Example \ref{ex:nested-bp-ta} by increasing latencies of instructions 
     \centering
     \begin{tabular}{rrr|ccc}
     &  &  & Res. & Dep. & Lat. \\ \hline
-    \textit{A:} &  &  & FU1 &  & $7$ \\
-    \textit{B:} &  &  & FU2 & $\{A\}$ & $4$ \\
-    \textit{C:} &  &  & FU1 &  & $1$ \\
-    & \textit{*D:} &  & FU2 &  & $3$ \\
-    &  & \textit{E:} & FU2 &  & $4$ \\
-    &  & \textit{F:} & FU2 &  & $4$ \\
-    &  & \textit{G:} & FU2 &  & $4$ \\
-    &  & \textit{H:} & FU2 &  & $4$ \\
-    & \textit{I:} &  & FU1 &  & $4$ \\
-    & \textit{J:} &  & FU2 &  & $4$ \\
+    \textit{A} &  &  & FU1 &  & $7$ \\
+    \textit{B} &  &  & FU2 & $\{A\}$ & $4$ \\
+    \textit{C} &  &  & FU1 &  & $1$ \\
+    & \textit{*D} &  & FU2 &  & $3$ \\
+    &  & \textit{E} & FU2 &  & $4$ \\
+    &  & \textit{F} & FU2 &  & $4$ \\
+    &  & \textit{G} & FU2 &  & $4$ \\
+    &  & \textit{H} & FU2 &  & $4$ \\
+    & \textit{I} &  & FU1 &  & $4$ \\
+    & \textit{J} &  & FU2 &  & $4$ \\
     \end{tabular}    
 
     \caption{Instruction trace of Example \ref{ex:bp-gap}}

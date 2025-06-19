@@ -45,7 +45,7 @@
     frame=shadowbox,
 }
 
-
+\includeonlyframes{current}
 \begin{document}
 
 % Define custom item styles
@@ -465,13 +465,18 @@
 \begin{frame}{Branch TA}
     Correct prediction leads to a longer execution time.
 
-    \includegraphics[width=0.8\textwidth]{pic/simple-branch-ta-analyzed.png}
+    \includegraphics<1>[scale=0.13]{pic/simple-branch-ta-analyzed-1.png}
+    \includegraphics<2>[scale=0.13]{pic/simple-branch-ta-analyzed-2.png}
+    \includegraphics<3>[scale=0.13]{pic/simple-branch-ta-analyzed-3.png}
+    \includegraphics<4>[scale=0.13]{pic/simple-branch-ta-analyzed-4.png}
 
-    \begin{block}{New Latency}
-        Between "branch prediction" and "correct branch taken" events.
-    \end{block}
+    \begin{exampleblock}{Where is latency?}
+        \only<2->{Between "branch prediction" and "correct branch taken" events.}
+    \end{exampleblock}
 
-    Binder's causality rules are applicable.
+    \only<3->{No need to adapt delay and causality.}
+
+    
 \end{frame}
 % Question: can we fit Binder's def?
 % ...and this is the answer
@@ -492,17 +497,23 @@
 % \end{frame}
 
 
-\begin{frame}{Early FU Release}
-    \includegraphics<1>[scale=0.17]{pic/nested-bp-ta-1.png}
-    \includegraphics<2>[scale=0.17]{pic/nested-bp-ta-2.png}
-    \includegraphics<3>[scale=0.17]{pic/nested-bp-ta-3.png}
-    \includegraphics<4>[scale=0.17]{pic/nested-bp-ta-4.png}
-    \includegraphics<5>[scale=0.17]{pic/nested-bp-ta-5.png}
-    \includegraphics<6>[scale=0.17]{pic/nested-bp-ta-6.png}
+\begin{frame}[label=current]{FU release by FU acquisition}
+    Where simple rules do not work.
+
+    \includegraphics<1>[scale=0.13]{pic/nested-bp-ta-1.png}
+    \includegraphics<2>[scale=0.13]{pic/nested-bp-ta-2.png}
+    \includegraphics<3>[scale=0.13]{pic/nested-bp-ta-3.png}
+    \includegraphics<4>[scale=0.13]{pic/nested-bp-ta-4.png}
+    \includegraphics<5>[scale=0.13]{pic/nested-bp-ta-5.png}
+    \includegraphics<6>[scale=0.13]{pic/nested-bp-ta-6.png}
+
+    \begin{exampleblock}{"Acquisition" Rule}
+        The FU acquisition is always causal to the respective FU release.
+    \end{exampleblock}
 \end{frame}
 % make it bigger
 
-\begin{frame}{Early FU Release}
+\begin{frame}{FU release by squashing}
     \includegraphics<1>[scale=0.11]{pic/lat-mispred-1.png}
     \includegraphics<2>[scale=0.11]{pic/lat-mispred-2.png}
     \includegraphics<3>[scale=0.11]{pic/lat-mispred-3.png}
