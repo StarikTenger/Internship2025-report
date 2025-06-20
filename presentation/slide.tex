@@ -22,10 +22,11 @@
   \end{alertblock}
 }
 
-\author{Andrei Ilin}
+\author{\textbf{Andrei Ilin} \\ Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
+% \author{Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
 \title{Timing Anomaly through Branch Prediction}
 % \subtitle{Cospa group meeting}
-\subtitle{Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
+\subtitle{}
 \institute{Université Grenoble Alpes}
 \date{23 June 2025}
 \usepackage{USTC_beamer}
@@ -61,7 +62,7 @@
 \renewcommand{\figurename}{Fig.}
 
 % logo
-\begin{frame}
+\begin{frame}[label=current]
     \titlepage
     \begin{figure}[htpb]
         \begin{center}
@@ -73,9 +74,9 @@
 \end{frame}
 % \TODO fix title
 
-\begin{frame}
-    \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
-\end{frame}
+% \begin{frame}
+%     \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+% \end{frame}
 
 \section{Introduction}
 
@@ -127,7 +128,7 @@
 
     \column{0.6\textwidth}
 
-    \includegraphics[width=1\textwidth]{pic/timing-distribution.png}
+    \includegraphics[width=1\textwidth]{pic/WCET.png}
 
     \includegraphics[width=1\textwidth]{pic/wcet-deps.png}
 
@@ -547,8 +548,8 @@
 
 \section{Conclusion}
 
-\begin{frame}[label=current]{Conclusion}
-    \textbf{What sas Done:}
+\begin{frame}{Conclusion}
+    \textbf{What was Done:}
     \begin{itemize}
         \item Analyzed existing timing anomaly (TA) definitions; adopted Binder's causality-based approach.
         \item Developed a tool to systematically generate and analyze branch prediction-induced TAs.
@@ -569,7 +570,10 @@
 \end{frame}
 % Add structure: results, future work
 
-\section*{Backup Slides}
+\appendix
+
+\section{Backup Slides}
+
 
 \begin{frame}{Branch Prediction: possible implementations}
     \begin{columns}
