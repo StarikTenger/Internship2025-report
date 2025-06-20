@@ -14,7 +14,13 @@
 \newcommand{\cmark}{\textcolor{green!70!black}{\ding{51}}} % green tick
 \newcommand{\xmark}{\textcolor{red}{\ding{55}}}            % red cross
 
-
+\newenvironment{greenblock}[1]{%
+  \setbeamercolor{block title alerted}{fg=white,bg=green!70!black}%
+  \setbeamercolor{block body alerted}{fg=black,bg=green!20}%
+  \begin{alertblock}{#1}
+}{%
+  \end{alertblock}
+}
 
 \author{Andrei Ilin}
 \title{Timing Anomaly through Branch Prediction}
@@ -45,7 +51,7 @@
     frame=shadowbox,
 }
 
-\includeonlyframes{current}
+% \includeonlyframes{current}
 \begin{document}
 
 % Define custom item styles
@@ -198,43 +204,7 @@
 % \TODO Show first without BP: we have to wait; Animation
 
 
-\begin{frame}{Branch Prediction: possible implementations}
-    \begin{columns}
-    \column{0.5\textwidth}
 
-    \begin{block}{Additional Hardware}
-        \begin{itemize}
-            \item Pattern History Table (PHT)
-            \item Branch Target Buffer (BTB)
-        \end{itemize}
-    \end{block}
-
-    \begin{exampleblock}{Example: 2-bit counter}
-        For each branch store a 4-state automaton in PHT
-    \end{exampleblock}
-
-    \column{0.5\textwidth}
-
-    \begin{block}{Strategies}
-        \textbf{Static:} always take, never take, take backwards. \\        
-        \textbf{Dynamic:} 
-        \begin{itemize}
-            \item 1 or 2-Bit Counter
-            \item Global or Local History
-            \item Global share
-        \end{itemize}
-        and more...
-    \end{block}
-
-    \end{columns}
-
-    \includegraphics[width=0.9\textwidth]{pic/two-bit-counter.png}
-\end{frame}
-
-% Not structured well
-% 2-bit coutner = 2 incorrect predictions to change
-% PHT - remember past branch
-% BTB - too remember the target
 
 \section{Timing Anomalies}
 
@@ -497,8 +467,8 @@
 % \end{frame}
 
 
-\begin{frame}[label=current]{FU release by FU acquisition}
-    Where simple rules do not work.
+\begin{frame}{FU release by FU acquisition}
+    Example: when a new rule is required.
 
     \includegraphics<1>[scale=0.13]{pic/nested-bp-ta-1.png}
     \includegraphics<2>[scale=0.13]{pic/nested-bp-ta-2.png}
@@ -507,37 +477,59 @@
     \includegraphics<5>[scale=0.13]{pic/nested-bp-ta-5.png}
     \includegraphics<6>[scale=0.13]{pic/nested-bp-ta-6.png}
 
-    \begin{exampleblock}{"Acquisition" Rule}
-        The FU acquisition is always causal to the respective FU release.
-    \end{exampleblock}
+    \only<5> {
+        \begin{alertblock}{ Binder's rule does not work}
+           "4 cycles must be spent inside FU to establish causality."
+        \end{alertblock}   
+    }
+
+    \only<6> {
+        \begin{greenblock}{"Acquisition" Rule}
+            The FU acquisition is always causal to the respective FU release.
+        \end{greenblock}
+    }
+    
 \end{frame}
 % make it bigger
 
 \begin{frame}{FU release by squashing}
+    The problem with the "Acquisition" rule.
     \includegraphics<1>[scale=0.11]{pic/lat-mispred-1.png}
     \includegraphics<2>[scale=0.11]{pic/lat-mispred-2.png}
     \includegraphics<3>[scale=0.11]{pic/lat-mispred-3.png}
     \includegraphics<4>[scale=0.11]{pic/lat-mispred-4.png}
+
+    \only<3> {
+        \begin{alertblock}{"Acquisition" rule does not work}
+           "The FU acquisition is always causal to the respective FU release."
+        \end{alertblock}   
+    }
+
+    \only<4> {
+        \begin{greenblock}{"Squashing" Rule}
+            If FU is released as the result of squashing, the FU release is causal to branch resolve.
+        \end{greenblock}
+    }
 \end{frame}
 % trace shorter
-
-\begin{frame}
-    Assumptions contradict each other!
-\end{frame}
 
 \begin{frame}{Results}
     \begin{itemize}
         \item The definition of Binder et al. can be applied in branch prediction context with minimal adjustments.
-        \item Sometimes it is not evident which rule to use.
+        \item It is not clear how to modify the rule set to stay consistent.
     \end{itemize}
 \end{frame}
 
 % Say that we have a bigger problem
 
 \begin{frame}{Gap Problem}
+    Even the original definition by Binder et al. has a problem.
     \includegraphics<1>[scale=0.17]{pic/gap-problem-1.png}
     \includegraphics<2>[scale=0.17]{pic/gap-problem-2.png}
     \includegraphics<3>[scale=0.17]{pic/gap-problem-3.png}
+    \begin{alertblock}<3>{To conclude:}
+        The problem is in the causality notion itself.
+    \end{alertblock}
 \end{frame}
 % Make an animation
 
@@ -555,16 +547,62 @@
 
 \section{Conclusion}
 
-\begin{frame}{Conclusion}
+\begin{frame}[label=current]{Conclusion}
+    \textbf{What sas Done:}
     \begin{itemize}
         \item Analyzed existing timing anomaly (TA) definitions; adopted Binder's causality-based approach.
         \item Developed a tool to systematically generate and analyze branch prediction-induced TAs.
-        \item Binder's definition is adaptable, but controversial cases and a "gap problem" remain.
-        \item Ongoing work: a new causality definition based on event constraints to address these issues.
-        \item Future work: study the impact of branch predictor state.
     \end{itemize}
+
+    \textbf{Results:}
+    \begin{itemize}
+        \item Binder's definition is adaptable, but controversial cases and a "gap problem" remain.
+    \end{itemize}
+
+    \textbf{Future Work:}
+    \begin{itemize}
+        \item A new causality definition based on event constraints to address these issues (work in progress).
+        \item Study the impact of branch predictor state.
+    \end{itemize}
+
+
 \end{frame}
 % Add structure: results, future work
+
+\section*{Backup Slides}
+
+\begin{frame}{Branch Prediction: possible implementations}
+    \begin{columns}
+    \column{0.5\textwidth}
+
+    \begin{block}{Additional Hardware}
+        \begin{itemize}
+            \item Pattern History Table (PHT)
+            \item Branch Target Buffer (BTB)
+        \end{itemize}
+    \end{block}
+
+    \begin{exampleblock}{Example: 2-bit counter}
+        For each branch store a 4-state automaton in PHT
+    \end{exampleblock}
+
+    \column{0.5\textwidth}
+
+    \begin{block}{Strategies}
+        \textbf{Static:} always take, never take, take backwards. \\        
+        \textbf{Dynamic:} 
+        \begin{itemize}
+            \item 1 or 2-Bit Counter
+            \item Global or Local History
+            \item Global share
+        \end{itemize}
+        and more...
+    \end{block}
+
+    \end{columns}
+
+    \includegraphics[width=0.9\textwidth]{pic/two-bit-counter.png}
+\end{frame}
 
 
 \end{document}
