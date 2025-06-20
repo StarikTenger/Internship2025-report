@@ -5,6 +5,8 @@
 % \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{pifont}
+\usepackage{soul}
+\usepackage{appendixnumberbeamer} 
 
 % other packages
 \usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
@@ -22,7 +24,7 @@
   \end{alertblock}
 }
 
-\author{\textbf{Andrei Ilin} \\ Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
+\author{\textbf{Andrei Ilin}}
 % \author{Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}
 \title{Timing Anomaly through Branch Prediction}
 % \subtitle{Cospa group meeting}
@@ -62,8 +64,11 @@
 \renewcommand{\figurename}{Fig.}
 
 % logo
-\begin{frame}[label=current]
+\begin{frame}
     \titlepage
+    \begin{center}
+        {\footnotesize \textit{Supervised by Lionel Rieg, Florian Brandner and Mihail Asavoae}}
+    \end{center}
     \begin{figure}[htpb]
         \begin{center}
             \includegraphics[width=0.2\linewidth]{pic/logo-uga.png}\hspace{1.5cm}
@@ -219,7 +224,7 @@
                 \item Step-functions Intersections (by Cassez et al.)
                 \item Component Occupation (by Kirner et al.)
                 \item Instruction Locality (by Reineke et al.)
-                \item Event Time Dependency Graph (by Binder et al.)
+                \item Causality Dependency Graph (by Binder et al.)
             \end{itemize}
         \end{block}
     }
@@ -231,7 +236,7 @@
                 \item \textbf{Step-functions Intersections (by Cassez et al.)}
                 \item Component Occupation (by Kirner et al.)
                 \item Instruction Locality (by Reineke et al.)
-                \item \textbf{Event Time Dependency Graph (by Binder et al.)}
+                \item \textbf{Causality Dependency Graph (by Binder et al.)}
             \end{itemize}
         \end{block}
     }
@@ -258,7 +263,7 @@
 
 \begin{frame}{Step Function Intersections by Cassez et al.}
     \begin{block}{Definition}
-        TA = one instruction finishes earlier than in alternative trace, the other later than in alternative trace
+        TA = some instruction finishes earlier in trace $\alpha$ than in $\beta$, subsequent instruction finishes later in $\alpha$ than in $\beta$
     \end{block}
 
     \only<1>{
@@ -280,7 +285,7 @@
 % Counterexample: step function !!
 % Is example correct?
 
-\begin{frame}{Event Time Dependency Graph by Binder et al.}
+\begin{frame}{Causality Graph by Binder et al.}
     \begin{block}{3 Components}
         \only<1> {
             \begin{enumerate}
@@ -299,14 +304,14 @@
         \only<3> {
             \begin{enumerate}
                 \item Variation in latency
-                \item \textbf{Slowdown} in delay end of variation $\rightarrow$ later event
+                \item \textbf{Slowdown} between end of the variation and a later event
                 \item Causality
             \end{enumerate}
         }
         \only<4> {
             \begin{enumerate}
                 \item Variation in latency
-                \item Slowdown  in delay end of (variation $\rightarrow$ later event)
+                \item Slowdown between end of the variation and a later event
                 \item \textbf{Causality} link = event $X$ cannot be earlier because of $Y$
             \end{enumerate}
         }
@@ -351,50 +356,59 @@
 % TLA problems, C++ problems, compare
 
 \begin{frame}{Tool Implementation}
-    % \begin{alertblock}{TLA+ implementation}
-    %     Is slow. 2-3 seconds to generate a single example.
-    % \end{alertblock}
-
-    % \begin{itemize}
-    %     \item Written in C++.
-    %     \item Simple and flexible input format.
-    %     \item Supports speculative execution.
-    %     \item Faster than TLA$+$ implementation (ms instead of seconds).
-    %     \item 3 operation modes:
-    %     \begin{enumerate}
-    %         \item Interactive manual mode.
-    %         \item Randomized search.
-    %         \item State space exploration.
-    %     \end{enumerate}
-    %     \item Lacks formal gurantees
-    % \end{itemize}
-
-    
-
-    \begin{columns}
+    \vspace*{-1em}
+    \begin{columns}[t]
         \column{0.5\textwidth}
-        \begin{exampleblock}{Existing TLA$^+$ framework}
+        \only<1> {
+            \begin{exampleblock}{Existing TLA$^+$ framework}
+                \begin{itemize}
+                    \item[\xmark] Slow: 2-3 seconds for single example
+                    \item[\xmark] No branch and speculation support
+                    \item[\xmark] Lengthy input format 
+                    \item[\cmark] Expressive property specification using temoral logic
+                \end{itemize}
+            \end{exampleblock}    
+        }
 
-            \begin{itemize}
-                \item[\xmark] Slow: 2-3 seconds for single example
-                \item[\xmark] No branch and speculation support
-                \item[\xmark] Lengthy input format 
-                \item[\cmark] Formal guarantees
-            \end{itemize}
+        \only<2> {
+            \begin{exampleblock}{Existing TLA$^+$ framework}
+                \begin{itemize}
+                    \item[\xmark] Slow: 2-3 seconds for single example
+                    \item[\cmark] \st{No branch and speculation support} \textbf{Added}
+                    \item[\cmark] \st{Lengthy input format} \textbf{Generate TLA$^+$ from pretty input}
+                    \item[\cmark] Expressive property specification using temoral logic
+                \end{itemize}
+            \end{exampleblock}    
+        }
 
-            
-        \end{exampleblock}
+        \only<3> {
+            \begin{exampleblock}{Existing TLA$^+$ framework}
+                \begin{itemize}
+                    \item[\xmark] Slow: 2-3 seconds for single example
+                    \item[\cmark] Added branch and speculation support
+                    \item[\cmark] Generate TLA$^+$ from pretty input
+                    \item[\cmark] Expressive property specification using temoral logic
+                \end{itemize}
+            \end{exampleblock}    
+        }
 
         \column{0.5\textwidth}
-        \pause
-        \begin{exampleblock}{Our C++ framework}
+        
+        \begin{exampleblock}<3>{Our C++ framework}
             \begin{itemize}
                 \item[\cmark] Fast: a few ms per example
                 \item[ ]
                 \item[\cmark] Traces with speculation
                 \item[ ] 
-                \item[\cmark] Refined consize input format
-                \item[\xmark] Harder to specify properties
+                \item[\cmark] Consize input format
+                \item[] 
+                \item[\xmark] Less expressive properties
+                \item[\cmark] 3 operation modes:
+                \begin{enumerate}
+                    \item Interactive
+                    \item Randomized
+                    \item State Exploration
+                \end{enumerate}
             \end{itemize}
         \end{exampleblock}
     \end{columns}
@@ -417,8 +431,9 @@
 
 \begin{columns}
     \column{0.4\textwidth}
+        \small
         \begin{tabular}{rr|ccc}
-         &  & Res & Dep. & Lat. \\ \hline
+         &  & Res & Dep. & FU Lat. \\ \hline
         \textit{A} &  & FU1 &  & $4$ \\
         \textit{*B} &  & FU2 & $\{A\}$ & $1$ \\
         & \textit{C} & FU2 &  & $4$ \\
