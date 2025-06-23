@@ -16,6 +16,7 @@
 \newcommand{\cmark}{\textcolor{green!70!black}{\ding{51}}} % green tick
 \newcommand{\xmark}{\textcolor{red}{\ding{55}}}            % red cross
 
+
 \newenvironment{greenblock}[1]{%
   \setbeamercolor{block title alerted}{fg=white,bg=green!70!black}%
   \setbeamercolor{block body alerted}{fg=black,bg=green!20}%
@@ -669,5 +670,60 @@
     \includegraphics[width=0.9\textwidth]{pic/two-bit-counter.png}
 \end{frame}
 
+
+\newcommand{\IFa}{\uparrow\mathrm{IF}}
+\newcommand{\IFr}{\downarrow\mathrm{IF}}
+\newcommand{\IDa}{\uparrow\mathrm{ID}}
+\newcommand{\IDr}{\downarrow\mathrm{ID}}
+\newcommand{\FUa}{\uparrow\mathrm{FU}}
+\newcommand{\FUr}{\downarrow\mathrm{FU}}
+\newcommand{\COM}{\mathrm{COM}}
+
+\begin{frame}{Binder's definition: details}
+    \begin{columns}
+    \column{0.25\textwidth}
+    \begin{block}{7 events for each instruction}
+        \begin{enumerate}
+            \item $\IFa$ 
+            \item $\IFr$
+            \item $\IDa$ 
+            \item $\IDr$
+            \item $\FUa$
+            \item $\FUr$
+            \item $\COM$
+        \end{enumerate}
+    \end{block}
+
+    \column{0.75\textwidth}
+
+    \begin{block}{Event Time Dependency Graph}
+        Each $(X \xrightarrow{t} Y)$ arc means at least $t$ cycles must pass between event $X$ and $Y$
+    \end{block}
+
+    \begin{block}{5 Rules for ETDG arcs}
+        \begin{enumerate}
+            \item \textbf{Order of Pipeline Stages} (acq. of next stage after rel. of previous)
+            \item \textbf{Resource Use} (cycles inside res.)
+            \item \textbf{Instruction Order} (for IF, ID, COM)
+            \item \textbf{Data Dependencies}
+            \item \textbf{Resource Contention} (using the same FU)
+        \end{enumerate}
+        
+    \end{block}
+
+    \end{columns}
+
+    \begin{block}{}
+        \textbf{Causality Graph} = ETDG with the most relevant arcs left.    
+    \end{block}
+\end{frame}
+
+\begin{frame}{Latency Impact on Branch Variation}
+    \includegraphics[width=\textwidth]{pic/lat-mispred-alt-interpretation-1.png}
+\end{frame}
+
+\begin{frame}{Misprediction region from CFG}
+    \includegraphics[width=0.8\textwidth]{pic/cfg-to-mispred-reg.drawio.png}
+\end{frame}
 
 \end{document}
