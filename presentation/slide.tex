@@ -118,26 +118,41 @@
 \begin{frame}{WCET Analysis}
     \begin{columns}
         
-    \column{0.4\textwidth}
+        \column{0.4\textwidth}
 
-    \textbf{W}orst \textbf{C}ase \textbf{E}xecution \textbf{T}ime Analysis:
-    \begin{itemize}
-        \item Hardware + Software
-        \item Upper bound for execution time?
-    \end{itemize}
+        \textbf{W}orst \textbf{C}ase \textbf{E}xecution \textbf{T}ime Analysis:
+        \begin{itemize}
+            \item Hardware + Software
+            \item Upper bound for execution time?
+        \end{itemize}
 
+        % \begin{alertblock}{}
+        %     Relying on observations is unsafe!
+        % \end{alertblock}
 
-    \begin{block}{}
-        Analysis is split into multiple stages and uses simplifications.
-    \end{block}
+        \column{0.6\textwidth}
 
-    \column{0.6\textwidth}
+        \includegraphics[width=1\textwidth]{pic/WCET.png}
 
-    \includegraphics[width=1\textwidth]{pic/WCET.png}
-
-    \includegraphics[width=1\textwidth]{pic/wcet-deps.png}
 
     \end{columns}
+
+    \pause
+
+    \begin{columns}
+        
+        \column{0.6\textwidth}
+
+        \includegraphics[width=1\textwidth]{pic/wcet-deps.png}
+
+        \column{0.4\textwidth}
+
+        \begin{block}{}
+            Analysis is split into multiple stages and uses abstractions.
+        \end{block}
+
+    
+        \end{columns}
 \end{frame}
 
 % Animate distribution?
@@ -448,19 +463,50 @@
 \end{frame}
 % \TODO add mispred notation
 
-\begin{frame}{Branch TA}
-    Correct prediction leads to a longer execution time.
+\begin{frame}{Applying the definition of Binder et al.}
+    \textbf{TA example:} Correct prediction leads to a longer execution time.
 
     \includegraphics<1>[scale=0.13]{pic/simple-branch-ta-analyzed-1.png}
     \includegraphics<2>[scale=0.13]{pic/simple-branch-ta-analyzed-2.png}
     \includegraphics<3>[scale=0.13]{pic/simple-branch-ta-analyzed-3.png}
     \includegraphics<4>[scale=0.13]{pic/simple-branch-ta-analyzed-4.png}
 
-    \begin{exampleblock}{Where is latency?}
-        \only<2->{Between "branch prediction" and "correct branch taken" events.}
-    \end{exampleblock}
+    % \begin{exampleblock}{Where is latency?}
+    %     \only<2->{Between "branch prediction" and "correct branch taken" events.}
+    % \end{exampleblock}
 
-    \only<3->{No need to adapt delay and causality.}
+    \only<1>{
+         \begin{enumerate}
+            \item \textbf{Variation in latency?}
+            \item \textbf{Slowdown?}
+            \item \textbf{Causality?}
+        \end{enumerate}
+    }
+
+    \only<2>{
+         \begin{enumerate}
+            \item \textbf{Variation in latency} between "branch prediction" and "correct branch taken" events.
+            \item \textbf{Slowdown?}
+            \item \textbf{Causality?}
+        \end{enumerate}
+    }
+
+    \only<3>{
+         \begin{enumerate}
+            \item \textbf{Variation in latency} between "branch prediction" and "correct branch taken" events.
+            \item \textbf{Slowdown} as in the original definition.
+            \item \textbf{Causality?}
+        \end{enumerate}
+    }
+
+    \only<4>{
+         \begin{enumerate}
+            \item \textbf{Variation in latency} between "branch prediction" and "correct branch taken" events.
+            \item \textbf{Slowdown} as in the original definition.
+            \item \textbf{Causality} as in the original definition.
+        \end{enumerate}
+    }
+
 
     
 \end{frame}
