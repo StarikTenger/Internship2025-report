@@ -158,7 +158,7 @@ First, each type of event we define the constraints for timestamp.
     \item $COM$ --- not earlier than $\FUr$ of the same instruction. At least 1 cycle must pass since $COM$ of previous instruction.
 \end{enumerate}
 
-Second, to uniquely determine the position of event, there should not exist the earlier position where the event can be placed. In other words, each event is scheduled as soon as it is possible by the constrains.
+Second, to uniquely determine the position of event, there should not exist the earlier position where the event can be placed. In other words, each event is scheduled as soon as it is possible by the constraints.
 
 If the rules hold true for an event $e$, we call $e$ \textit{stable} and \textit{unstable} otherwise. The \textit{stable} set of events is a set where every event is stable.
 
@@ -180,7 +180,26 @@ The procedure resolves in trace with corresponding to the execution trace of mod
 
 Proposition 3 directly follows from propositions 1 and 2.
 
+Example ...
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/resolution-steps-example.png}
+    \caption{An example illustrating the step-by-step resolution procedure \TODO{legend}}
+    \label{fig:causality-resolution-example}
+\end{figure}
 
+Mention that it is simplified
+
+Problems:
+grouping
+filters
+???
+
+\section{Evaluation of Correctness}
+
+I did not do any proofs, so the correctness of the procedure is done empirically
+
+\TODO{}
 
 \end{document}
