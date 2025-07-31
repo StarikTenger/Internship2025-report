@@ -67,8 +67,8 @@
 \newcommand{\FUr}{\downarrow\mathrm{FU}}
 \newcommand{\COM}{\mathrm{COM}}
 
-\newcommand{\TODO}[1]{\colorbox{red!30}{TODO: \textbf{#1}}}
-% \newcommand{\TODO}[1]{}
+% \newcommand{\TODO}[1]{\colorbox{red!30}{TODO: \textbf{#1}}}
+\newcommand{\TODO}[1]{}
 
 \usepackage[most]{tcolorbox}
 \newcounter{example}
@@ -180,26 +180,68 @@ The procedure resolves in trace with corresponding to the execution trace of mod
 
 Proposition 3 directly follows from propositions 1 and 2.
 
-Example ...
+We illustrate how the resolution procedure works on an example. Consider a following input:
+
+\begin{tabular}{r|ccc}
+ & Res & Dep. & Lat. \\ \hline
+\textit{A:} & FU1 &  & $4|1$ \\
+\textit{B:} & FU2 & $\{A\}$ & $4$ \\
+\textit{C:} & FU2 &  & $4$ \\
+\textit{D:} & FU1 & $\{C\}$ & $4$ \\
+\end{tabular}
+
+It creates a pair of execution traces $\alpha$ and $\beta$ with latency of $A$ being 4 and 1 in $\alpha$ and $\beta$ respectively. Figure \ref{fig:causality-resolution-example} shows the resolution procedure for this input. We start from trace $\beta$, from which we get $\beta_1$ by changing the latency of $A$. Then, on each step unstable events are identified (shown in red boxes) and moved to new positions (shown as green boxes). Note that here we synchronzie the movement of $\FUr$ to the movement of corresponding $\FUa$: this is done for simplicity of visualization. Formally, the described procedure must move $\FUa$ first, and only in the next resolution step the $\FUr$ will be moved. The example illustrates how through a number of resolution step trace $\beta$ turns into $\alpha$.
+
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{pics/resolution-steps-example.png}
-    \caption{An example illustrating the step-by-step resolution procedure \TODO{legend}}
+    \caption{An example illustrating the step-by-step resolution procedure}
     \label{fig:causality-resolution-example}
 \end{figure}
 
-Mention that it is simplified
+\subsection{Deriving Causality from Resolution Procedure}
 
-Problems:
-grouping
-filters
-???
+The resolution procedure gives us some information about the order of which the events influence each other. We try to define the causality from the resolution procedure as follows:
 
-\section{Evaluation of Correctness}
+Consider 3 event sets $E_1, E_2, E_3$ where the events are different only by timestamps. They represent a part of the resolution procedure ($E_1 \xrightarrow{U_1} E_2 \xrightarrow{U_2} E_3$), where $U_1$ is a set of events moved in step $E_1 \rightarrow E_2$, $U_2$ - a set of events moved from $E_2 \rightarrow E_3$. We establish the causality relations between events from $U_1$ to events from $U_2$. To determine which events are responsible for $u \in U_2$ to move, we find the smallest subset $U_1' \subseteq U_1$ s.t. $E_1 \xrightarrow{U_1'} E_2' \xrightarrow{U_2'} E_3'$ and $u \in U_2'$. In other words, we search for which events are enough to move in the first step to observe $u$ be moved in the next. Thus, each event may have several incoming multiedges (there can be multiple subsets found). Subsets are disjointed.
 
-I did not do any proofs, so the correctness of the procedure is done empirically
+\textbf{Filtering}
 
-\TODO{}
+When applying the procedure some event may be moved several times, so we keep only the arcs corresponding to the last movement of the event.
+
+Figure \ref{fig:successful-res} shows the connections restored from example above.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/successful-res.png}
+    \caption{Graph restored form resolution procedure shown in figure \ref{fig:causality-resolution-example}}
+    \label{fig:successful-res}
+\end{figure}
+
+Figure \ref{fig:multiedge} shows an example of multiedge: since execution of $D$ is restricted by $B$ and $C$, both $B$ and $C$ must move to allow $D$ to move.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/multiedge.png}
+    \caption{Multiedge example}
+    \label{fig:multiedge}
+\end{figure}
+
+\textbf{Filtering problem}
+
+Example in figure \ref{fig:filter-problem} is similar to one from figure \ref{fig:multiedge}. However, here instruction $C$ is split into two: $C$ and $D$. Normally, we would expect ot see a multiedge $(B,D) \rightarrow E$ here. However, due to the filtering we detect the edge $D \rightarrow E$ later than $B \rightarrow E$ and the priority is given to the last discovered.
+
+So the filter should be implemnted differently.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/filter-problem.png}
+    \caption{Missing edge}
+    \label{fig:filter-problem}
+\end{figure}
+
+
+\TODO{moving from alpha to beta}
 
 \end{document}
